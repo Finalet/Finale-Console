@@ -1,0 +1,23 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "C:\\Users\\StudyAbroad\\Documents\\Arduino\\libraries\\LedControl\\src",
+                "C:\\Users\\StudyAbroad\\Documents\\Arduino\\libraries\\TimedAction",
+                "C:\\Program Files (x86)\\Arduino\\libraries\\TimedAction",
+                "C:\\Users\\StudyAbroad\\AppData\\Local\\Arduino15\\packages\\arduino\\tools\\**",
+                "C:\\Users\\StudyAbroad\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.2\\**",
+                "C:\\Users\\StudyAbroad\\Desktop\\FinaleConsole\\**"
+            ],
+            "forcedInclude": [
+                "C:\\Users\\StudyAbroad\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.2\\cores\\arduino\\Arduino.h"
+            ],
+            "intelliSenseMode": "msvc-x64",
+            "defines": [
+                "USBCON"
+            ]
+        }
+    ],
+    "version": 4
+}
