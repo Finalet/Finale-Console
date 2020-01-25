@@ -30,6 +30,10 @@ int sideBottom = 0;
 int sideTop = 0;
 int winningScale = 0;
 bool quadrumTug_Launched = false;
+bool isScoreDisplayed = false;
+
+int topScore = 0;
+int bottomScore = 0;
 
 TimedAction reduceScl = TimedAction(1000, QuadrumTug_ReduceScale);
 
@@ -68,10 +72,12 @@ void QuadrumTug_PVPButtons(button btn) {
 
     if (winningScale >= 12) {
         delay(400);
+        bottomScore++;
         QuadrumTug_WinnerBottom();
         QuadrumTug_Reset();
     } else if (winningScale <= -12) {
         delay(400);
+        topScore++;
         QuadrumTug_WinnerTop();
         QuadrumTug_Reset();
     }
@@ -147,6 +153,7 @@ void QuadrumTug_UpdateLED () {
             } else {
                 SetFullColumnOff(address, 6-i);
                 SetFullColumnOff(0, 14-i);
+                if (isScoreDisplayed == true) { QuadrumTug_ClearTop(); isScoreDisplayed = false; }
             }
         } else if (winningScale >7) {
             lc.setColumn(1, 0, B01111110);
@@ -176,6 +183,7 @@ void QuadrumTug_UpdateLED () {
             } else {
                 SetFullColumnOff(address, i+1);
                 SetFullColumnOff(3, i-7);
+                if (isScoreDisplayed == true) { QuadrumTug_ClearBottom(); isScoreDisplayed = false; }
             }
         } else if (winningScale < -7) {
             lc.setColumn(2, 7, B01111110);
@@ -199,6 +207,8 @@ void QuadrumTug_Reset() {
 void QuadrumTug_Launch () {
     if (quadrumTug_Launched == false){
         AllLEDOff();
+        QuadrumTug_DisplayScore(bottomScore, topScore);
+        isScoreDisplayed = true;
         winningScale = 0;
         winningScale = constrain(winningScale, -12, 12);
 
