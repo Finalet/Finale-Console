@@ -21,7 +21,7 @@ void setup () {
         lc.setIntensity(address, 1);
         lc.clearDisplay(address);
     }
-    //StartUpAnimation();
+    StartUpAnimation();
 }
 
 #pragma region QuadrumTug   //QuadrumTug game

@@ -4,50 +4,36 @@ Column is a row and row is a column because my matrix is rotated verticaly
 #include <LedControl.h>
 
 LedControl lc = LedControl(10, 12, 11, 4);
-int ledDelay = 50;
 
 void StartUpAnimation () {
-    for (int address = 0; address < 4; address ++) {
-        for (int x = 0; x < 8; x ++) {
-        lc.setColumn(address, x, B11111111);
-        delay(ledDelay);
+    lc.setColumn(0, 0, B00011000);
+    delay(50);
+    lc.setColumn(0, 0, B00111100);
+    delay(50);
+    lc.setColumn(0, 0, B01111110);
+    delay(50);
+    lc.setColumn(0, 0, B11111111);
+    delay(50);
+    for (int address = 0; address < 4; address++) {
+        for (int row = 0; row < 8; row ++) {
+            if (address == 3 && row == 7) {
+                break;
+            } else if (row == 0 && address == 0) {
+                lc.setColumn(address, row, B11111111);
+            } else {
+                lc.setColumn(address, row, B10000001);
+                delay(50);
+            }   
         }
     }
-    
-    
-    for (int address = 0; address < 4; address ++) {
-        lc.clearDisplay(address);
-    }
-    delay(300);
-    for (int address = 0; address < 4; address ++) {
-        for(int row = 0; row < 8; row ++) {
-            lc.setRow(address, row, B11111111);
-        }
-    }
-    delay(300);
-    for (int address = 0; address < 4; address ++) {
-        lc.clearDisplay(address);
-    }
-    delay(300);
-    for (int address = 0; address < 4; address ++) {
-        for(int row = 0; row < 8; row ++) {
-            lc.setRow(address, row, B11111111);
-        }
-    }
-    delay(300);
-    for (int address = 0; address < 4; address ++) {
-        lc.clearDisplay(address);
-    }
-    delay(300);
-    for (int address = 0; address < 4; address ++) {
-        for(int row = 0; row < 8; row ++) {
-            lc.setRow(address, row, B11111111);
-        }
-    }
-    delay(300);
-    for (int address = 0; address < 4; address ++) {
-        lc.clearDisplay(address);
-    }
+    lc.setColumn(3, 7, B10000001);
+    delay(50);
+    lc.setColumn(3, 7, B11000011);
+    delay(50);
+    lc.setColumn(3, 7, B11100111);
+    delay(50);
+    lc.setColumn(3, 7, B11111111);
+    delay(500);
 }
 
 void SetFullColumnOn (int address, int column) {
