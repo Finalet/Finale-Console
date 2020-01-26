@@ -31,11 +31,13 @@ int sideTop = 0;
 int winningScale = 0;
 bool quadrumTug_Launched = false;
 bool isScoreDisplayed = false;
+bool PVEMode = true;
 
 int topScore = 0;
 int bottomScore = 0;
 
 TimedAction reduceScl = TimedAction(1000, QuadrumTug_ReduceScale);
+TimedAction AI = TimedAction (9000, QuadrumTug_PVEAI);
 
 void QuadrumTug_PVPButtons(button btn) {
     if (btn == BottomLeft) {
@@ -101,10 +103,10 @@ void QuadrumTug_CheckButtonPress() {
     } else if (digitalRead(buttonBottomRight) == HIGH) {
         QuadrumTug_PVPButtons(BottomRight);
         reduceScl.reset();
-    } else if (digitalRead(buttonTopLeft) == HIGH) {
+    } else if (digitalRead(buttonTopLeft) == HIGH && PVEMode == false) {
         QuadrumTug_PVPButtons(TopLeft);
         reduceScl.reset();
-    } else if (digitalRead(buttonTopRight) == HIGH) {
+    } else if (digitalRead(buttonTopRight) == HIGH && PVEMode == false) {
         QuadrumTug_PVPButtons(TopRight);
         reduceScl.reset();
     } else {
@@ -135,6 +137,17 @@ void QuadrumTug_AssignPVPTop () {
         lc.setColumn(3, 6, B00001111);
         lc.setColumn(3, 7, B00001111);
         sideTop = 1;
+    }
+}
+
+void QuadrumTug_PVEAI() {
+    winningScale -= 4;
+
+    if (winningScale <= -12) {
+        delay(400);
+        topScore++;
+        QuadrumTug_WinnerTop();
+        QuadrumTug_Reset();
     }
 }
 
@@ -224,6 +237,13 @@ void QuadrumTug_Launch () {
         quadrumTug_Launched = true;
     } else {
         QuadrumTug_CheckButtonPress();
+
+        if (PVEMode == true) {
+            AI.setInterval(1000); //Change difficulty
+            AI.check();
+        } else {
+            AI.disable();
+        }
     }
     
 }
