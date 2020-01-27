@@ -9,7 +9,8 @@
 
 #define potentiomentr1 A0
 
-int gameNumber = 1;
+int gameNumber = 0; //Menu = 0, QuadrumTug = 1
+int menuNumber = 0; //QuadrumTug = 0; Dummy = 1
 
 void setup () {
     Serial.begin(9600);
@@ -25,6 +26,53 @@ void setup () {
     }
     StartUpAnimation();
 }
+
+#pragma region Menu
+
+bool isArrowsDrawn = false;
+bool isMenuUpdated = false;
+void Menu_Display() {
+    if (isArrowsDrawn == false) {
+        Draw_Menu_Arrows();
+        isArrowsDrawn = true;
+    } 
+    if (isMenuUpdated == false) {
+        if (menuNumber == 0) {
+            Draw_Menu_QT();
+            isMenuUpdated = true;
+        } else {
+            Draw_Menu_Dummy();
+            isMenuUpdated = true;
+        }
+    } 
+}
+
+void Menu() {
+    if (menuNumber == 0) {
+        if (digitalRead(buttonTopLeft) == HIGH) {
+            menuNumber ++; 
+            isMenuUpdated = false;
+        } else if (digitalRead(buttonTopRight) == HIGH) {
+            menuNumber ++;
+            isMenuUpdated = false;
+        } else if (digitalRead(buttonBottomLeft) == HIGH || digitalRead(buttonBottomRight) == HIGH) { //QuadrumTug
+            gameNumber = 1;
+        }
+    } else if (menuNumber == 1) {
+        if (digitalRead(buttonTopLeft) == HIGH) {
+            menuNumber --; 
+            isMenuUpdated = false;
+        } else if (digitalRead(buttonTopRight) == HIGH) {
+            menuNumber --;
+            isMenuUpdated = false;
+        } else if (digitalRead(buttonBottomLeft) == HIGH || digitalRead(buttonBottomRight) == HIGH) { //DUMMY
+
+        }
+    }
+    Menu_Display();
+}
+
+#pragma endregion
 
 #pragma region QuadrumTug   //QuadrumTug game
 
@@ -78,12 +126,12 @@ void QuadrumTug_PVPButtons(button btn) {
     if (winningScale >= 12) {
         delay(400);
         bottomScore++;
-        QuadrumTug_WinnerBottom();
+        Draw_QuadrumTug_WinnerBottom();
         QuadrumTug_Reset();
     } else if (winningScale <= -12) {
         delay(400);
         topScore++;
-        QuadrumTug_WinnerTop();
+        Draw_QuadrumTug_WinnerTop();
         QuadrumTug_Reset();
     }
 
@@ -102,7 +150,6 @@ void QuadrumTug_CheckButtonPress() {
     if (digitalRead(buttonBottomLeft) == HIGH) {
         QuadrumTug_PVPButtons(BottomLeft);
         reduceScl.reset();
-        Serial.println("left");
     } else if (digitalRead(buttonBottomRight) == HIGH) {
         QuadrumTug_PVPButtons(BottomRight);
         reduceScl.reset();
@@ -131,16 +178,23 @@ void QuadrumTug_AssignPVPBottom () {
 }
 
 void QuadrumTug_AssignPVPTop () {
-    int x = random(2);  
-    if (x == 0) { //Left
-        lc.setColumn(3, 6, B11110000);
-        lc.setColumn(3, 7, B11110000);
-        sideTop = 0;
-    } else { //Right
-        lc.setColumn(3, 6, B00001111);
-        lc.setColumn(3, 7, B00001111);
-        sideTop = 1;
+    if (PVEMode == false) {
+        int x = random(2);  
+        if (x == 0) { //Left
+            lc.setColumn(3, 6, B11110000);
+            lc.setColumn(3, 7, B11110000);
+            sideTop = 0;
+        } else { //Right
+            lc.setColumn(3, 6, B00001111);
+            lc.setColumn(3, 7, B00001111);
+            sideTop = 1;
+        }
+    } else {
+        lc.setColumn(3, 5, B11111111);
+        lc.setColumn(3, 6, B00000000);
+        lc.setColumn(3, 7, B00000000);
     }
+    
 }
 
 void QuadrumTug_PVEAI() {
@@ -152,7 +206,7 @@ void QuadrumTug_PVEAI() {
         AI.disable();
         delay(400);
         topScore++;
-        QuadrumTug_WinnerTop();
+        Draw_QuadrumTug_WinnerTop();
         QuadrumTug_Reset();
     }
 }
@@ -172,7 +226,7 @@ void QuadrumTug_UpdateLED () {
             } else {
                 SetFullColumnOff(address, 6-i);
                 SetFullColumnOff(0, 14-i);
-                if (isScoreDisplayed == true) { QuadrumTug_ClearTop(); isScoreDisplayed = false; }
+                if (isScoreDisplayed == true) { Draw_QuadrumTug_ClearTop(); isScoreDisplayed = false; }
             }
         } else if (winningScale >7) {
             lc.setColumn(1, 0, B01111110);
@@ -202,7 +256,7 @@ void QuadrumTug_UpdateLED () {
             } else {
                 SetFullColumnOff(address, i+1);
                 SetFullColumnOff(3, i-7);
-                if (isScoreDisplayed == true) { QuadrumTug_ClearBottom(); isScoreDisplayed = false; }
+                if (isScoreDisplayed == true) { Draw_QuadrumTug_ClearBottom(); isScoreDisplayed = false; }
             }
         } else if (winningScale < -7) {
             lc.setColumn(2, 7, B01111110);
@@ -231,11 +285,11 @@ void QuadrumTug_ReadPotentiometr1 () {
         PVEMode = false;
     }
 }
-
+bool assignedAfterPVE = false;
 void QuadrumTug_Launch () {
     if (quadrumTug_Launched == false){
         AllLEDOff();
-        QuadrumTug_DisplayScore(bottomScore, topScore);
+        Draw_QuadrumTug_Score(bottomScore, topScore);
         isScoreDisplayed = true;
         winningScale = 0;
         winningScale = constrain(winningScale, -12, 12);
@@ -262,10 +316,16 @@ void QuadrumTug_Launch () {
         QuadrumTug_CheckButtonPress();
         QuadrumTug_ReadPotentiometr1();
         if (PVEMode == true) {
+            QuadrumTug_AssignPVPTop();
             AI.setInterval(7000/AIDifficulty); //Change difficulty
             AI.enable();
             AI.check();
+            assignedAfterPVE = false;
         } else {
+            if (assignedAfterPVE == false) {
+                QuadrumTug_AssignPVPTop();
+                assignedAfterPVE = true;
+            }
             AI.disable();
         }
     }
@@ -274,9 +334,45 @@ void QuadrumTug_Launch () {
 
 #pragma endregion 
 
-void loop() {
+#pragma region Background 
+
+TimedAction backgroundTimer = TimedAction(3000, Background_ExitToMenu);
+
+void Background_ExitToMenu () {
     if (gameNumber == 1) {
+        quadrumTug_Launched = false;
+    }
+    gameNumber = 0;
+    isMenuUpdated = false;
+    isArrowsDrawn = false;
+    Draw_ExitToMenu();
+}
+bool enalbed = false;
+
+void Background_CheckHomeButton () {
+    if (digitalRead(buttonBottomLeft) == HIGH && digitalRead(buttonBottomRight) == HIGH && gameNumber != 0) {
+        if(enalbed == false) {
+            backgroundTimer.enable();
+            enalbed = true;
+        } 
+        backgroundTimer.check();
+    } else {
+        enalbed = false;
+        backgroundTimer.reset();
+        backgroundTimer.disable();
+    }
+}
+
+#pragma endregion
+
+void loop() {
+    if (gameNumber == 0) {
+        Menu();
+    } else if (gameNumber == 1) {
         QuadrumTug_Launch();
     }
+    Serial.println(gameNumber);
+
+    Background_CheckHomeButton();
 }
 

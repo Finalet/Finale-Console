@@ -24,7 +24,7 @@ void StartUpAnimation () {
                 lc.setColumn(address, row, B11111111);
             } else {
                 lc.setColumn(address, row, B10000001);
-                delay(50);
+                delay(animationDelay);
             }   
         }
     }
@@ -99,9 +99,122 @@ void AllLEDOff () {
     }
 }
 
+#pragma region Menu
+
+int animationDelay = 25;
+
+void Draw_Menu_Arrows () {    
+    byte leftArrow[] = {
+        B10011001,
+        B10111101,
+        B10011001,
+        B10011001,
+        B10011001,
+        B10011001
+    };
+    for (int x = 2; x < 8; x++) {
+        lc.setColumn(0, x, leftArrow[x-2]);
+    }
+    byte rightArrow[] ={
+        B10011001,
+        B10011001,
+        B10011001,
+        B10011001,
+        B10111101,
+        B10011001
+    };
+    for (int x = 0; x < 6; x++) {
+        lc.setColumn(3, x, rightArrow[x]);
+    }
+}    
+
+void Draw_Menu_QT() {
+    byte Q[] = {
+        B10000001,
+        B10000001,
+        B10000001,
+        B10111101,
+        B10100101,
+        B10100101,
+        B10111101,
+        B10000011
+    };
+    for (int x = 0; x < 8; x++) {
+        lc.setColumn(1, x, Q[x]);
+    }
+    byte T[] = {
+        B10100001,
+        B10100001,
+        B10111101,
+        B10100001,
+        B10100001,
+        B10000001,
+        B10000001,
+        B10000001
+    };
+    for (int x = 0; x < 8; x++) {
+        lc.setColumn(2, x, T[x]);
+    }
+    delay(200);
+}
+
+void Draw_Menu_Dummy() {
+    byte D[] = {
+        B10000001,
+        B10000001,
+        B10000001,
+        B10111101,
+        B10100101,
+        B10100101,
+        B10011001,
+        B10000001
+    };
+    for (int x = 0; x < 8; x++) {
+        lc.setColumn(1, x, D[x]);
+    }
+    byte M[] = {
+        B10111101,
+        B10100001,
+        B10010001,
+        B10100001,
+        B10111101,
+        B10000001,
+        B10000001,
+        B10000001
+    };
+    for (int x = 0; x < 8; x++) {
+        lc.setColumn(2, x, M[x]);
+    }
+    delay(200);
+}
+
+void Draw_ExitToMenu() {   
+    for (int address = 1; address >= 0; address--) {
+        for (int row = 7; row >= 0; row --) {
+            lc.setColumn(address, row, B10000001);
+            lc.setColumn(abs(address-3), abs(row-7), B10000001);
+            delay(animationDelay); 
+        }
+    }
+    lc.setColumn(0, 0, B11000011);
+    lc.setColumn(3, 7, B11000011);
+    delay(animationDelay);
+    lc.setColumn(0, 0, B11100111);
+    lc.setColumn(3, 7, B11100111);
+    delay(animationDelay);
+    lc.setColumn(0, 0, B11100111);
+    lc.setColumn(3, 7, B11100111);
+    delay(animationDelay);
+    lc.setColumn(0, 0, B11111111);
+    lc.setColumn(3, 7, B11111111);
+    delay(500);
+}
+
+#pragma endregion
+
 #pragma region QuadrumTug
 
-void QuadrumTug_WinnerBottom () {
+void Draw_QuadrumTug_WinnerBottom () {
     for (int count = 0; count < 3; count++) {
         lc.setColumn(1, 6, B00000000);
         lc.setColumn(1, 5, B00000000);
@@ -132,7 +245,7 @@ void QuadrumTug_WinnerBottom () {
     }
 }
 
-void QuadrumTug_WinnerTop () {
+void Draw_QuadrumTug_WinnerTop () {
     for (int count = 0; count < 3; count ++) {
         lc.setColumn(2, 1, B00000000);
         lc.setColumn(2, 2, B00000000);
@@ -163,7 +276,7 @@ void QuadrumTug_WinnerTop () {
     }
 }
 
-void QuadrumTug_DisplayScore (int bottom, int top) {
+void Draw_QuadrumTug_Score (int bottom, int top) {
     if (bottom == 0) {
         lc.setColumn(0, 5, B01111110);
         lc.setColumn(0, 6, B01000010);
@@ -277,7 +390,7 @@ void QuadrumTug_DisplayScore (int bottom, int top) {
     }
 }
 
-void QuadrumTug_ClearBottom() {
+void Draw_QuadrumTug_ClearBottom() {
     SetFullColumnOff(1, 6);
     SetFullColumnOff(1, 5);
     SetFullColumnOff(1, 4);
@@ -292,7 +405,7 @@ void QuadrumTug_ClearBottom() {
     SetFullColumnOff(0, 3);
 }
 
-void QuadrumTug_ClearTop() {
+void Draw_QuadrumTug_ClearTop() {
     SetFullColumnOff(2, 1);
     SetFullColumnOff(2, 2);
     SetFullColumnOff(2, 3);
