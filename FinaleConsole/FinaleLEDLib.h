@@ -3,17 +3,19 @@ Column is a row and row is a column because my matrix is rotated verticaly
 */
 #include <LedControl.h>
 
-LedControl lc = LedControl(10, 12, 11, 4);
+LedControl lc = LedControl(10, 12, 11, 4); // LedControl(DataIn, CLK, LOAD, #devices)
 
 void StartUpAnimation () {
+    int animationDelay = 25;
+
     lc.setColumn(0, 0, B00011000);
-    delay(50);
+    delay(animationDelay);
     lc.setColumn(0, 0, B00111100);
-    delay(50);
+    delay(animationDelay);
     lc.setColumn(0, 0, B01111110);
-    delay(50);
+    delay(animationDelay);
     lc.setColumn(0, 0, B11111111);
-    delay(50);
+    delay(animationDelay);
     for (int address = 0; address < 4; address++) {
         for (int row = 0; row < 8; row ++) {
             if (address == 3 && row == 7) {
@@ -27,13 +29,61 @@ void StartUpAnimation () {
         }
     }
     lc.setColumn(3, 7, B10000001);
-    delay(50);
+    delay(animationDelay);
     lc.setColumn(3, 7, B11000011);
-    delay(50);
+    delay(animationDelay);
     lc.setColumn(3, 7, B11100111);
-    delay(50);
+    delay(animationDelay);
     lc.setColumn(3, 7, B11111111);
-    delay(500);
+    delay(animationDelay);
+
+    //Spell "Finale"
+    byte FinaleAddress0[] = {
+        B10111101,
+        B10101001,
+        B10101001,
+        B10000001,
+        B10000001,
+        B10101101
+    };
+    for (int x = 2; x < 8; x++) {
+        lc.setColumn(0, x, FinaleAddress0[x-2]);
+        delay(animationDelay);
+    }
+    byte FinaleAddress1[] ={
+        B10111101,
+        B10010001,
+        B10001001,
+        B10111101
+    };
+    for (int x = 2; x < 6; x++) {
+        lc.setColumn(1, x, FinaleAddress1[x-2]);
+        delay(animationDelay);
+    }
+    byte FinaleAddress2[] = {
+        B10111101,
+        B10101001,
+        B10111101,
+        B10000001,
+        B10000001,
+        B10111101,
+        B10000101,
+        B10000101
+    };
+    for (int x = 0; x < 8; x++) {
+        lc.setColumn(2, x, FinaleAddress2[x]);
+        delay(animationDelay);
+    }
+    byte FinaleAddress3[] = {
+        B10111101,
+        B10101101,
+        B10101101
+    };
+    for (int x = 2; x < 5; x++) {
+        lc.setColumn(3, x, FinaleAddress3[x-2]);
+        delay(animationDelay);
+    }
+    delay(3000);
 }
 
 void SetFullColumnOn (int address, int column) {

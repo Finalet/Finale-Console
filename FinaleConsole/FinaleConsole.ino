@@ -7,6 +7,8 @@
 #define buttonTopLeft 4
 #define buttonTopRight 5
 
+#define potentiomentr1 A0
+
 int gameNumber = 1;
 
 void setup () {
@@ -31,7 +33,8 @@ int sideTop = 0;
 int winningScale = 0;
 bool quadrumTug_Launched = false;
 bool isScoreDisplayed = false;
-bool PVEMode = true;
+bool PVEMode = false;
+int AIDifficulty = 1; // 1-8
 
 int topScore = 0;
 int bottomScore = 0;
@@ -90,16 +93,16 @@ void QuadrumTug_ReduceScale() {
     if (winningScale > 0) {
         winningScale--;
         QuadrumTug_UpdateLED();
-    } else if (winningScale < 0) {
+    } else if (winningScale < 0 && PVEMode == false) {
         winningScale ++;
         QuadrumTug_UpdateLED();
     }
 }
-
 void QuadrumTug_CheckButtonPress() {
     if (digitalRead(buttonBottomLeft) == HIGH) {
         QuadrumTug_PVPButtons(BottomLeft);
         reduceScl.reset();
+        Serial.println("left");
     } else if (digitalRead(buttonBottomRight) == HIGH) {
         QuadrumTug_PVPButtons(BottomRight);
         reduceScl.reset();
@@ -141,9 +144,12 @@ void QuadrumTug_AssignPVPTop () {
 }
 
 void QuadrumTug_PVEAI() {
-    winningScale -= 4;
+    winningScale -= 3;
+
+    QuadrumTug_UpdateLED();
 
     if (winningScale <= -12) {
+        AI.disable();
         delay(400);
         topScore++;
         QuadrumTug_WinnerTop();
@@ -217,6 +223,15 @@ void QuadrumTug_Reset() {
     quadrumTug_Launched = false;
 }
 
+void QuadrumTug_ReadPotentiometr1 () {
+    AIDifficulty = analogRead(potentiomentr1) * 10/1023;
+    if (AIDifficulty > 2) {
+        PVEMode = true;
+    } else {
+        PVEMode = false;
+    }
+}
+
 void QuadrumTug_Launch () {
     if (quadrumTug_Launched == false){
         AllLEDOff();
@@ -233,13 +248,22 @@ void QuadrumTug_Launch () {
         QuadrumTug_AssignPVPBottom();
         QuadrumTug_AssignPVPTop();
 
-        
-        quadrumTug_Launched = true;
+        delay (1000); 
+
+        if (bottomScore == 5 || topScore == 5) {
+            delay (2000);
+            bottomScore = 0;
+            topScore = 0;
+            QuadrumTug_Reset();
+        } else {
+            quadrumTug_Launched = true;
+        }
     } else {
         QuadrumTug_CheckButtonPress();
-
+        QuadrumTug_ReadPotentiometr1();
         if (PVEMode == true) {
-            AI.setInterval(1000); //Change difficulty
+            AI.setInterval(7000/AIDifficulty); //Change difficulty
+            AI.enable();
             AI.check();
         } else {
             AI.disable();
