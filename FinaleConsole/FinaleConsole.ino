@@ -9,8 +9,8 @@
 
 #define potentiomentr1 A0
 
-int gameNumber = 0; //Menu = 0, QuadrumTug = 1
-int menuNumber = 0; //QuadrumTug = 0; Dummy = 1
+int gameNumber = 0; //Menu = 0, QuadrumTug = 1, Snake = 2
+int menuNumber; //QuadrumTug = 0, Dummy = 1
 
 void setup () {
     Serial.begin(9600);
@@ -21,7 +21,7 @@ void setup () {
     //LED Matrix setup
     for (int address = 0; address < 4; address ++) {
         lc.shutdown(address, false);
-        lc.setIntensity(address, 1);
+        lc.setIntensity(address, 8);
         lc.clearDisplay(address);
     }
     StartUpAnimation();
@@ -41,7 +41,7 @@ void Menu_Display() {
             Draw_Menu_QT();
             isMenuUpdated = true;
         } else {
-            Draw_Menu_Dummy();
+            Draw_Menu_Snake();
             isMenuUpdated = true;
         }
     } 
@@ -65,8 +65,8 @@ void Menu() {
         } else if (digitalRead(buttonTopRight) == HIGH) {
             menuNumber --;
             isMenuUpdated = false;
-        } else if (digitalRead(buttonBottomLeft) == HIGH || digitalRead(buttonBottomRight) == HIGH) { //DUMMY
-
+        } else if (digitalRead(buttonBottomLeft) == HIGH || digitalRead(buttonBottomRight) == HIGH) { 
+            gameNumber = 2;
         }
     }
     Menu_Display();
@@ -334,6 +334,211 @@ void QuadrumTug_Launch () {
 
 #pragma endregion 
 
+#pragma region Snake 
+int speed = 1;
+
+int snakeSize;
+int snakeX[256];
+int snakeY[256];
+direction dir;
+bool changedDir;
+
+int foodX;
+int foodY;
+
+bool gameOn;
+
+unsigned long prevMillis = 0;
+
+int getAddress(int y) {
+    int address;
+    if (y <= 8) {
+        address = 0;
+    } else if (y > 8 && y <= 16) {
+        address = 1;
+    } else if (y > 16 && y <= 24) {
+        address = 2;
+    } else if (y > 24 && y <= 32) {
+        address = 3;
+    }
+    return address;
+}
+int adjustedCoordinate (int address, int x) {
+    if (address == 0) {
+        return x;
+    } else if (address == 1) {
+        return x-8;
+    } else if (address == 2) {
+        return x-16;
+    } else if (address == 3) {
+        return x-24;
+    }
+}
+
+void Snake_Launch() {
+    if (gameOn == false) {  
+        for (int i = 0; i < 4; i++) {
+            lc.clearDisplay(i);
+        }
+
+        snakeX[0] = 4;
+        snakeY[0] = 10;
+        dir = up;
+        snakeSize = 1;
+
+        Snake_NewFood();
+        gameOn = true;
+    }
+
+    Snake_DrawSnake ();
+    Snake_DrawFood ();
+
+    Snake_CheckIfOnFood();
+    Snake_CheckIfHitSelf();
+    Snake_CheckSpeed ();
+
+    if (digitalRead(buttonTopLeft) == LOW && digitalRead(buttonTopRight) == LOW) {
+        changedDir = false;
+    }
+    unsigned long currentMillis = millis();
+    while (currentMillis - prevMillis <= 1000/speed) {
+        if (changedDir == false) {
+            Snake_CheckDirection();
+        }
+        currentMillis = millis();
+    } 
+    prevMillis = currentMillis;
+    Snake_Move();
+}
+
+void Snake_CheckDirection () {
+    if (digitalRead(buttonTopLeft) == HIGH) {
+        if (dir == up) {
+            dir = left;
+        } else if (dir == down) {
+            dir = right;
+        } else if (dir == left) {
+            dir = down;
+        } else if (dir == right) {
+            dir = up;
+        }
+        changedDir = true;
+    } else if (digitalRead(buttonTopRight) == HIGH) {
+        if (dir == up) {
+            dir = right;
+        } else if (dir == down) {
+            dir = left;
+        } else if (dir == left) {
+            dir = up;
+        } else if (dir == right) {
+            dir = down;
+        }
+        changedDir = true;
+    }
+}
+
+void Snake_CheckSpeed () {
+    speed = 1 + analogRead(potentiomentr1) * 10 / 1023;
+}
+
+void Snake_Move() {
+    for (int i = snakeSize; i > 0; i--) {
+        snakeX[i] = snakeX[i-1];
+        snakeY[i] = snakeY[i-1];
+    }
+    if (dir == up) {
+        if (snakeY[0] == 32) {
+            snakeY[0] = 1;
+        } else {
+            snakeY[0]++;
+        }
+    } else if (dir == down) {
+        if (snakeY[0] == 1) {
+            snakeY[0] = 32;
+        } else
+        {
+           snakeY[0]--;
+        }        
+    } else if (dir == left) {
+        if (snakeX[0] == 1) {
+            snakeX[0] = 8;
+        } else {
+            snakeX[0]--;
+        }
+    } else if (dir == right) {
+        if (snakeX[0] == 8) {
+            snakeX[0] = 1;
+        } else {
+            snakeX[0]++;
+        }
+    }
+}
+
+void Snake_CheckIfOnFood () {
+    if(snakeX[0] == foodX && snakeY[0] == foodY) {
+        snakeSize++;
+        Snake_NewFood();
+    }
+}
+
+void Snake_CheckIfHitSelf () {
+    for (int i = snakeSize; i > 0; i--) {
+        if (snakeX[0] == snakeX[i] && snakeY[0] == snakeY[i]) {
+            Snake_GameOver();
+        }
+    }
+}
+
+void Snake_DrawSnake() { 
+    int lastX = snakeX[snakeSize];
+    int lastAddress = getAddress(snakeY[snakeSize]);
+    int lastY = adjustedCoordinate(lastAddress, snakeY[snakeSize]);
+    lc.setLed(lastAddress, lastX-1, lastY-1, false);
+
+    int x = snakeX[0];
+    int address = getAddress(snakeY[0]);
+    int y = adjustedCoordinate(address, snakeY[0]);
+    lc.setLed(address, x-1, y-1, true); 
+}
+
+void Snake_BlinkSnake () {
+    for (int i = 0; i < snakeSize; i++) {
+        int address = getAddress(snakeY[i]);
+        int x = snakeX[i];
+        int y = adjustedCoordinate(address, snakeY[i]);
+        lc.setLed(address, x-1, y-1, false);
+    }
+    delay(200);
+    for (int i = 0; i < snakeSize; i++) {
+        int address = getAddress(snakeY[i]);
+        int x = snakeX[i];
+        int y = adjustedCoordinate(address, snakeY[i]);
+        lc.setLed(address, x-1, y-1, true);
+    }
+    delay(200);
+}
+
+void Snake_DrawFood() {
+    int address = getAddress(foodY);
+    int x = foodX;
+    int y = adjustedCoordinate(address, foodY);
+    lc.setLed(address, x-1, y-1, true);
+}
+
+void Snake_NewFood () {
+    foodX = random(1, 9);
+    foodY = random(1, 33);
+}
+
+void Snake_GameOver() {
+    for (int x = 0; x < 5; x++) {
+        Snake_BlinkSnake();
+    }
+    gameOn = false;
+}
+
+#pragma endregion
+
 #pragma region Background 
 
 TimedAction backgroundTimer = TimedAction(3000, Background_ExitToMenu);
@@ -370,9 +575,9 @@ void loop() {
         Menu();
     } else if (gameNumber == 1) {
         QuadrumTug_Launch();
+    } else if (gameNumber == 2) {
+        Snake_Launch();
     }
-    Serial.println(gameNumber);
-
     Background_CheckHomeButton();
 }
 

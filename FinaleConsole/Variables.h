@@ -4,3 +4,10 @@ enum button {
     TopLeft,
     TopRight
 };
+
+enum direction {
+    up,
+    down,
+    left,
+    right
+};

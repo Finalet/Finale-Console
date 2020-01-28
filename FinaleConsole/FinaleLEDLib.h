@@ -158,32 +158,32 @@ void Draw_Menu_QT() {
     delay(200);
 }
 
-void Draw_Menu_Dummy() {
-    byte D[] = {
+void Draw_Menu_Snake() {
+    byte S1[] = {
         B10000001,
         B10000001,
         B10000001,
-        B10111101,
-        B10100101,
-        B10100101,
         B10011001,
-        B10000001
+        B10011001,
+        B10011001,
+        B10011001,
+        B10011001
     };
     for (int x = 0; x < 8; x++) {
-        lc.setColumn(1, x, D[x]);
+        lc.setColumn(1, x, S1[x]);
     }
-    byte M[] = {
-        B10111101,
-        B10100001,
-        B10010001,
-        B10100001,
-        B10111101,
+    byte S2[] = {
+        B10011001,
+        B10000001,
+        B10000001,
+        B10011001,
+        B10011001,
         B10000001,
         B10000001,
         B10000001
     };
     for (int x = 0; x < 8; x++) {
-        lc.setColumn(2, x, M[x]);
+        lc.setColumn(2, x, S2[x]);
     }
     delay(200);
 }
