@@ -9,8 +9,8 @@
 
 #define potentiomentr1 A0
 
-int gameNumber = 0; //Menu = 0, QuadrumTug = 1, Snake = 2
-int menuNumber; //QuadrumTug = 0, Dummy = 1
+char gameNumber = 0; //Menu = 0, QuadrumTug = 1, Snake = 2
+char menuNumber; //QuadrumTug = 0, Dummy = 1
 
 void setup () {
     Serial.begin(9600);
@@ -20,9 +20,13 @@ void setup () {
 
     //LED Matrix setup
     for (int address = 0; address < 4; address ++) {
-        lc.shutdown(address, false);
-        lc.setIntensity(address, 8);
-        lc.clearDisplay(address);
+        lcBottom.shutdown(address, false);
+        lcBottom.setIntensity(address, 8);
+        lcBottom.clearDisplay(address);
+
+        lcTop.shutdown(address, false);
+        lcTop.setIntensity(address, 8);
+        lcTop.clearDisplay(address);
     }
     StartUpAnimation();
 }
@@ -76,16 +80,16 @@ void Menu() {
 
 #pragma region QuadrumTug   //QuadrumTug game
 
-int sideBottom = 0;
-int sideTop = 0;
-int winningScale = 0;
+byte sideBottom = 0;
+byte sideTop = 0;
+byte winningScale = 0;
 bool quadrumTug_Launched = false;
 bool isScoreDisplayed = false;
 bool PVEMode = false;
-int AIDifficulty = 1; // 1-8
+byte AIDifficulty = 1; // 1-8
 
-int topScore = 0;
-int bottomScore = 0;
+byte topScore = 0;
+byte bottomScore = 0;
 
 TimedAction reduceScl = TimedAction(1000, QuadrumTug_ReduceScale);
 TimedAction AI = TimedAction (9000, QuadrumTug_PVEAI);
@@ -167,12 +171,12 @@ void QuadrumTug_CheckButtonPress() {
 void QuadrumTug_AssignPVPBottom () {
     int x = random(2);  
     if (x == 0) { //Left
-        lc.setColumn(0, 0, B11110000);
-        lc.setColumn(0, 1, B11110000);
+        lcBottom.setColumn(0, 0, B11110000);
+        lcBottom.setColumn(0, 1, B11110000);
         sideBottom = 0;
     } else { //Right
-        lc.setColumn(0, 0, B00001111);
-        lc.setColumn(0, 1, B00001111);
+        lcBottom.setColumn(0, 0, B00001111);
+        lcBottom.setColumn(0, 1, B00001111);
         sideBottom = 1;
     }
 }
@@ -181,18 +185,18 @@ void QuadrumTug_AssignPVPTop () {
     if (PVEMode == false) {
         int x = random(2);  
         if (x == 0) { //Left
-            lc.setColumn(3, 6, B11110000);
-            lc.setColumn(3, 7, B11110000);
+            lcBottom.setColumn(3, 6, B11110000);
+            lcBottom.setColumn(3, 7, B11110000);
             sideTop = 0;
         } else { //Right
-            lc.setColumn(3, 6, B00001111);
-            lc.setColumn(3, 7, B00001111);
+            lcBottom.setColumn(3, 6, B00001111);
+            lcBottom.setColumn(3, 7, B00001111);
             sideTop = 1;
         }
     } else {
-        lc.setColumn(3, 5, B11111111);
-        lc.setColumn(3, 6, B00000000);
-        lc.setColumn(3, 7, B00000000);
+        lcBottom.setColumn(3, 5, B11111111);
+        lcBottom.setColumn(3, 6, B00000000);
+        lcBottom.setColumn(3, 7, B00000000);
     }
     
 }
@@ -221,7 +225,7 @@ void QuadrumTug_UpdateLED () {
             SetFullColumnOff(2, 2);
             if (count > 0) {
                 address = 1;
-                lc.setColumn(address, 6-i, B01111110);
+                lcBottom.setColumn(address, 6-i, B01111110);
                 count --;
             } else {
                 SetFullColumnOff(address, 6-i);
@@ -229,11 +233,11 @@ void QuadrumTug_UpdateLED () {
                 if (isScoreDisplayed == true) { Draw_QuadrumTug_ClearTop(); isScoreDisplayed = false; }
             }
         } else if (winningScale >7) {
-            lc.setColumn(1, 0, B01111110);
-            lc.setColumn(1, 1, B01111110);
+            lcBottom.setColumn(1, 0, B01111110);
+            lcBottom.setColumn(1, 1, B01111110);
             if (count > 0) {
                 address = 0;
-                lc.setColumn(address, 14-i, B01111110);
+                lcBottom.setColumn(address, 14-i, B01111110);
                 count --;
             } else {
                 SetFullColumnOff(address, 14-i);
@@ -251,7 +255,7 @@ void QuadrumTug_UpdateLED () {
             SetFullColumnOff(1, 5);
             if  (count < 0) {
                 address = 2;
-                lc.setColumn(address, i+1, B01111110);
+                lcBottom.setColumn(address, i+1, B01111110);
                 count ++;
             } else {
                 SetFullColumnOff(address, i+1);
@@ -259,11 +263,11 @@ void QuadrumTug_UpdateLED () {
                 if (isScoreDisplayed == true) { Draw_QuadrumTug_ClearBottom(); isScoreDisplayed = false; }
             }
         } else if (winningScale < -7) {
-            lc.setColumn(2, 7, B01111110);
-            lc.setColumn(2, 6, B01111110);
+            lcBottom.setColumn(2, 7, B01111110);
+            lcBottom.setColumn(2, 6, B01111110);
             if (count < 0) {
                 address = 3;
-                lc.setColumn(address, i-7, B01111110);
+                lcBottom.setColumn(address, i-7, B01111110);
                 count ++;
             } else {
                 SetFullColumnOff(address, i-7);
@@ -334,24 +338,26 @@ void QuadrumTug_Launch () {
 
 #pragma endregion 
 
-#pragma region Snake 
-int speed = 1;
+#pragma region Snake    //Snake
 
-int snakeSize;
+char speed = 1;
+
+char snakeSize;
 int snakeX[256];
 int snakeY[256];
 direction dir;
 bool changedDir;
 
-int foodX;
-int foodY;
+char foodX;
+char foodY;
 
 bool gameOn;
+bool isPaused;
 
 unsigned long prevMillis = 0;
 
-int getAddress(int y) {
-    int address;
+char getAddress(char y) {
+    char address;
     if (y <= 8) {
         address = 0;
     } else if (y > 8 && y <= 16) {
@@ -363,7 +369,7 @@ int getAddress(int y) {
     }
     return address;
 }
-int adjustedCoordinate (int address, int x) {
+char adjustedCoordinate (char address, char x) {
     if (address == 0) {
         return x;
     } else if (address == 1) {
@@ -377,8 +383,9 @@ int adjustedCoordinate (int address, int x) {
 
 void Snake_Launch() {
     if (gameOn == false) {  
-        for (int i = 0; i < 4; i++) {
-            lc.clearDisplay(i);
+        for (char i = 0; i < 4; i++) {
+            lcTop.clearDisplay(i);
+            lcBottom.clearDisplay(i);
         }
 
         snakeX[0] = 4;
@@ -388,6 +395,16 @@ void Snake_Launch() {
 
         Snake_NewFood();
         gameOn = true;
+    }
+
+    if (isPaused == true) {
+        for (char i = 0; i < 4; i++) {
+            lcBottom.clearDisplay(i);
+        }
+
+        Snake_DrawFullSnake();
+        Snake_DrawFood();
+        isPaused = false;
     }
 
     Snake_DrawSnake ();
@@ -442,7 +459,7 @@ void Snake_CheckSpeed () {
 }
 
 void Snake_Move() {
-    for (int i = snakeSize; i > 0; i--) {
+    for (char i = snakeSize; i > 0; i--) {
         snakeX[i] = snakeX[i-1];
         snakeY[i] = snakeY[i-1];
     }
@@ -482,7 +499,7 @@ void Snake_CheckIfOnFood () {
 }
 
 void Snake_CheckIfHitSelf () {
-    for (int i = snakeSize; i > 0; i--) {
+    for (char i = snakeSize; i > 0; i--) {
         if (snakeX[0] == snakeX[i] && snakeY[0] == snakeY[i]) {
             Snake_GameOver();
         }
@@ -490,39 +507,48 @@ void Snake_CheckIfHitSelf () {
 }
 
 void Snake_DrawSnake() { 
-    int lastX = snakeX[snakeSize];
-    int lastAddress = getAddress(snakeY[snakeSize]);
-    int lastY = adjustedCoordinate(lastAddress, snakeY[snakeSize]);
-    lc.setLed(lastAddress, lastX-1, lastY-1, false);
+    char lastX = snakeX[snakeSize];
+    char lastAddress = getAddress(snakeY[snakeSize]);
+    char lastY = adjustedCoordinate(lastAddress, snakeY[snakeSize]);
+    lcBottom.setLed(lastAddress, lastX-1, lastY-1, false);
 
-    int x = snakeX[0];
-    int address = getAddress(snakeY[0]);
-    int y = adjustedCoordinate(address, snakeY[0]);
-    lc.setLed(address, x-1, y-1, true); 
+    char x = snakeX[0];
+    char address = getAddress(snakeY[0]);
+    char y = adjustedCoordinate(address, snakeY[0]);
+    lcBottom.setLed(address, x-1, y-1, true); 
 }
 
 void Snake_BlinkSnake () {
-    for (int i = 0; i < snakeSize; i++) {
-        int address = getAddress(snakeY[i]);
-        int x = snakeX[i];
-        int y = adjustedCoordinate(address, snakeY[i]);
-        lc.setLed(address, x-1, y-1, false);
+    for (char i = 0; i < snakeSize; i++) {
+        char address = getAddress(snakeY[i]);
+        char x = snakeX[i];
+        char y = adjustedCoordinate(address, snakeY[i]);
+        lcBottom.setLed(address, x-1, y-1, false);
     }
     delay(200);
-    for (int i = 0; i < snakeSize; i++) {
-        int address = getAddress(snakeY[i]);
-        int x = snakeX[i];
-        int y = adjustedCoordinate(address, snakeY[i]);
-        lc.setLed(address, x-1, y-1, true);
+    for (char i = 0; i < snakeSize; i++) {
+        char address = getAddress(snakeY[i]);
+        char x = snakeX[i];
+        char y = adjustedCoordinate(address, snakeY[i]);
+        lcBottom.setLed(address, x-1, y-1, true);
     }
     delay(200);
 }
 
+void Snake_DrawFullSnake() {
+    for (char i = 0; i < snakeSize; i++) {
+        char address = getAddress(snakeY[i]);
+        char x = snakeX[i];
+        char y = adjustedCoordinate(address, snakeY[i]);
+        lcBottom.setLed(address, x-1, y-1, true);
+    }
+}
+
 void Snake_DrawFood() {
-    int address = getAddress(foodY);
-    int x = foodX;
-    int y = adjustedCoordinate(address, foodY);
-    lc.setLed(address, x-1, y-1, true);
+    char address = getAddress(foodY);
+    char x = foodX;
+    char y = adjustedCoordinate(address, foodY);
+    lcBottom.setLed(address, x-1, y-1, true);
 }
 
 void Snake_NewFood () {
@@ -531,7 +557,7 @@ void Snake_NewFood () {
 }
 
 void Snake_GameOver() {
-    for (int x = 0; x < 5; x++) {
+    for (char x = 0; x < 5; x++) {
         Snake_BlinkSnake();
     }
     gameOn = false;
@@ -546,6 +572,8 @@ TimedAction backgroundTimer = TimedAction(3000, Background_ExitToMenu);
 void Background_ExitToMenu () {
     if (gameNumber == 1) {
         quadrumTug_Launched = false;
+    } else if (gameNumber == 2) {
+        isPaused = true;
     }
     gameNumber = 0;
     isMenuUpdated = false;
