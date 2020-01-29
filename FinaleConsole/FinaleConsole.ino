@@ -80,16 +80,16 @@ void Menu() {
 
 #pragma region QuadrumTug   //QuadrumTug game
 
-byte sideBottom = 0;
-byte sideTop = 0;
-byte winningScale = 0;
+char sideBottom = 0;
+char sideTop = 0;
+char winningScale = 0;
 bool quadrumTug_Launched = false;
 bool isScoreDisplayed = false;
 bool PVEMode = false;
-byte AIDifficulty = 1; // 1-8
+char AIDifficulty = 1; // 1-8
 
-byte topScore = 0;
-byte bottomScore = 0;
+char topScore = 0;
+char bottomScore = 0;
 
 TimedAction reduceScl = TimedAction(1000, QuadrumTug_ReduceScale);
 TimedAction AI = TimedAction (9000, QuadrumTug_PVEAI);
