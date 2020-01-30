@@ -173,14 +173,14 @@ void QuadrumTug_CheckButtonPress() {
 void QuadrumTug_AssignPVPBottom () {
     int x = random(2);  
     if (x == 0) { //Left
-        lcBottom.setColumn(0, 0, B00000000);
-        lcBottom.setColumn(0, 1, B00000000);
+        lcBottom.setColumn(0, 6, B00000000);
+        lcBottom.setColumn(0, 7, B00000000);
         lcTop.setColumn(0, 6, B11111111);
         lcTop.setColumn(0, 7, B11111111);
         sideBottom = 0;
     } else { //Right
-        lcBottom.setColumn(0, 0, B11111111);
-        lcBottom.setColumn(0, 1, B11111111);
+        lcBottom.setColumn(0, 6, B11111111);
+        lcBottom.setColumn(0, 7, B11111111);
         lcTop.setColumn(0, 6, B00000000);
         lcTop.setColumn(0, 7, B00000000);
         sideBottom = 1;
@@ -191,22 +191,22 @@ void QuadrumTug_AssignPVPTop () {
     if (PVEMode == false) {
         int x = random(2);  
         if (x == 0) { //Left
-            lcBottom.setColumn(3, 6, B11111111);
-            lcBottom.setColumn(3, 7, B11111111);
+            lcBottom.setColumn(3, 0, B11111111);
+            lcBottom.setColumn(3, 1, B11111111);
             lcTop.setColumn(3, 0, B00000000);
             lcTop.setColumn(3, 1, B00000000);
             sideTop = 0;
         } else { //Right
-            lcBottom.setColumn(3, 6, B00000000);
-            lcBottom.setColumn(3, 7, B00000000);
+            lcBottom.setColumn(3, 0, B00000000);
+            lcBottom.setColumn(3, 1, B00000000);
             lcTop.setColumn(3, 0, B11111111);
             lcTop.setColumn(3, 1, B11111111);
             sideTop = 1;
         }
     } else {
-        lcBottom.setColumn(3, 5, B11111111);
-        lcBottom.setColumn(3, 6, B00000000);
-        lcBottom.setColumn(3, 7, B00000000);
+        lcBottom.setColumn(3, 2, B11111111);
+        lcBottom.setColumn(3, 1, B00000000);
+        lcBottom.setColumn(3, 0, B00000000);
         lcTop.setColumn(3, 2, B11111111);
         lcTop.setColumn(3, 1, B00000000);
         lcTop.setColumn(3, 0, B00000000);
@@ -234,65 +234,65 @@ void QuadrumTug_UpdateLED () {
     for (int i = 0; i < 12; i++)
     {
         if (winningScale <= 7 && winningScale > 0) {
-            SetFullColumnOff(0, 2, 1);  SetFullColumnOff(1, 2, 6);
-            SetFullColumnOff(0, 2, 2);  SetFullColumnOff(1, 2, 5);
+            SetFullColumnOff(0, 2, 6);  SetFullColumnOff(1, 2, 6);
+            SetFullColumnOff(0, 2, 5);  SetFullColumnOff(1, 2, 5);
             if (count > 0) {
                 address = 1;
                 lcTop.setColumn(address, i+1, B11111110);
-                lcBottom.setColumn(address, 6-i, B01111110);
+                lcBottom.setColumn(address, i+1, B01111111);
                 count --;
             } else {
-                SetFullColumnOff(0, address, 6-i);  SetFullColumnOff(1, address, i+1);
-                SetFullColumnOff(0, 0, 14-i);   SetFullColumnOff(1, 0, i-7);
+                SetFullColumnOff(0, address, i+1);  SetFullColumnOff(1, address, i+1);
+                SetFullColumnOff(0, 0, i-7);   SetFullColumnOff(1, 0, i-7);
                 if (isScoreDisplayed == true) { Draw_QuadrumTug_ClearTop(); isScoreDisplayed = false; }
             }
         } else if (winningScale >7) {
             lcTop.setColumn(1, 7, B11111110);
             lcTop.setColumn(1, 6, B11111110);
-            lcBottom.setColumn(1, 0, B01111110);
-            lcBottom.setColumn(1, 1, B01111110);
+            lcBottom.setColumn(1, 7, B01111111);
+            lcBottom.setColumn(1, 6, B01111111);
             if (count > 0) {
                 address = 0;
                 lcTop.setColumn(address, i-7, B11111110);
-                lcBottom.setColumn(address, 14-i, B01111110);
+                lcBottom.setColumn(address, i-7, B01111111);
                 count --;
             } else {
                 SetFullColumnOff(1, address, i-7);
-                SetFullColumnOff(0, address, 14-i);
+                SetFullColumnOff(0, address, i-7);
             }
         } else if (winningScale == 0) {
-            SetFullColumnOff(0, 1, 4);  SetFullColumnOff(1, 1, 3);
-            SetFullColumnOff(0, 1, 5);  SetFullColumnOff(1, 1, 2);
-            SetFullColumnOff(0, 1, 6);  SetFullColumnOff(1, 1, 1);
+            SetFullColumnOff(0, 1, 3);  SetFullColumnOff(1, 1, 3);
+            SetFullColumnOff(0, 1, 2);  SetFullColumnOff(1, 1, 2);
+            SetFullColumnOff(0, 1, 1);  SetFullColumnOff(1, 1, 1);
 
-            SetFullColumnOff(0, 2, 1);  SetFullColumnOff(1, 2, 6);
-            SetFullColumnOff(0, 2, 2);  SetFullColumnOff(1, 2, 5);
-            SetFullColumnOff(0, 2, 3);  SetFullColumnOff(1, 2, 4);
+            SetFullColumnOff(0, 2, 6);  SetFullColumnOff(1, 2, 6);
+            SetFullColumnOff(0, 2, 5);  SetFullColumnOff(1, 2, 5);
+            SetFullColumnOff(0, 2, 4);  SetFullColumnOff(1, 2, 4);
         } else if (winningScale >= -7 && winningScale < 0) {
-            SetFullColumnOff(0, 1, 6);  SetFullColumnOff(1, 1, 1);
-            SetFullColumnOff(0, 1, 5);  SetFullColumnOff(1, 1, 2);
+            SetFullColumnOff(0, 1, 1);  SetFullColumnOff(1, 1, 1);
+            SetFullColumnOff(0, 1, 2);  SetFullColumnOff(1, 1, 2);
             if  (count < 0) {
                 address = 2;
                 lcTop.setColumn(address, 6-i, B11111110);
-                lcBottom.setColumn(address, i+1, B01111110);
+                lcBottom.setColumn(address, 6-i, B01111111);
                 count ++;
             } else {
-                SetFullColumnOff(0, address, i+1);  SetFullColumnOff(1, address, 6-i);
-                SetFullColumnOff(0, 3, i-7);        SetFullColumnOff(1, 3, 14-i);
+                SetFullColumnOff(0, address, 6-i);  SetFullColumnOff(1, address, 6-i);
+                SetFullColumnOff(0, 3, 14-i);        SetFullColumnOff(1, 3, 14-i);
                 if (isScoreDisplayed == true) { Draw_QuadrumTug_ClearBottom(); isScoreDisplayed = false; }
             }
         } else if (winningScale < -7) {
             lcTop.setColumn(2, 0, B11111110);
             lcTop.setColumn(2, 1, B11111110);
-            lcBottom.setColumn(2, 7, B01111110);
-            lcBottom.setColumn(2, 6, B01111110);
+            lcBottom.setColumn(2, 0, B01111111);
+            lcBottom.setColumn(2, 1, B01111111);
             if (count < 0) {
                 address = 3;
                 lcTop.setColumn(address, 14-i, B11111110);
-                lcBottom.setColumn(address, i-7, B01111110);
+                lcBottom.setColumn(address, 14-i, B01111111);
                 count ++;
             } else {
-                SetFullColumnOff(0, address, i-7);  SetFullColumnOff(1, address, 14-i);
+                SetFullColumnOff(0, address, 14-i);  SetFullColumnOff(1, address, 14-i);
             }
         }
     }
@@ -320,10 +320,10 @@ void QuadrumTug_Launch () {
         winningScale = 0;
         winningScale = constrain(winningScale, -12, 12);
 
-        SetFullColumnOn(0, 1, 7); SetFullColumnOn(1, 1, 0);
-        SetFullColumnOn(0, 2, 0); SetFullColumnOn(1, 2, 7);
-        SetFullColumnOn(0, 0, 2); SetFullColumnOn(1, 0, 5); //Bottom playarea edge
-        SetFullColumnOn(0, 3, 5); SetFullColumnOn(1, 3, 2); //Top playarea edge
+        SetFullColumnOn(0, 1, 0); SetFullColumnOn(1, 1, 0);
+        SetFullColumnOn(0, 2, 7); SetFullColumnOn(1, 2, 7);
+        SetFullColumnOn(0, 0, 5); SetFullColumnOn(1, 0, 5); //Bottom playarea edge
+        SetFullColumnOn(0, 3, 2); SetFullColumnOn(1, 3, 2); //Top playarea edge
         //Start PVP
         QuadrumTug_AssignPVPBottom();
         QuadrumTug_AssignPVPTop();
@@ -336,7 +336,7 @@ void QuadrumTug_Launch () {
             topScore = 0;
             QuadrumTug_Reset();
         } else {
-            delay (2000);
+            delay (1000);
             Draw_QuadrumTug_ClearTop();
             Draw_QuadrumTug_ClearBottom();
             quadrumTug_Launched = true;

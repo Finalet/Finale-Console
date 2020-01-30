@@ -12,21 +12,21 @@ void StartUpAnimation () {
 
     for (char x = 0; x < 8; x++) {
         lcTop.setLed(0, x, 7, true);
-        lcBottom.setLed(0, x, 0, true);
+        lcBottom.setLed(0, 8-x, 7, true);
         delay(animationDelay);
     }
 
     for (char address = 0; address < 4; address ++) {
         for (int x = 0; x < 8; x++) {
             lcTop.setLed(address, 7, 7-x, true);
-            lcBottom.setLed(address, 7, x, true);
+            lcBottom.setLed(address, 0, 7-x, true);
             delay(animationDelay);
         }
     }    
 
     for (char x = 7; x >= 0; x--) {
         lcTop.setLed(3, x, 0, true);
-        lcBottom.setLed(3, x, 7, true);
+        lcBottom.setLed(3, 8-x, 0, true);
         delay(animationDelay);
     }
 
@@ -85,52 +85,52 @@ void StartUpAnimation () {
 
     //Spell "Games"
     byte GamesAddress0[] = {
-        B01111101,
-        B01000101,
-        B01010101,
-        B01011101
+        B10111110,
+        B10100010,
+        B10101010,
+        B10111010,
     };
-    for (char x = 3; x < 7; x++) {
-        lcBottom.setColumn(0, x, GamesAddress0[x-3]);
+    for (char x = 4; x >= 1; x--) {
+        lcBottom.setColumn(0, x, GamesAddress0[4-x]);
         delay(animationDelay);
     }
     byte GamesAddress1[] ={
-        B01111101,
-        B01010001,
-        B01010001,
-        B01111101,
-        B00000001,
-        B01111101,
-        B00100001,
-        B00010001
+        B10111100,
+        B10001010,
+        B10001010,
+        B10111100,
+        B10000000,
+        B10111110,
+        B10000100,
+        B10001000
         
     };
-    for (char x = 0; x < 8; x++) {
-        lcBottom.setColumn(1, x, GamesAddress1[x]);
+    for (char x = 7; x >= 0; x--) {
+        lcBottom.setColumn(1, x, GamesAddress1[7-x]);
         delay(animationDelay);
     }
     byte GamesAddress2[] = {
-        B00010001,
-        B00100001,
-        B01111101,
-        B00000001,
-        B01111101,
-        B01010101,
-        B01010101,
-        B01010101
+        B10001000,
+        B10000100,
+        B10111110,
+        B10000000,
+        B10111110,
+        B10101010,
+        B10101010,
+        B10101010
     }; 
-    for (char x = 0; x < 8; x++) {
-        lcBottom.setColumn(2, x, GamesAddress2[x]);
+    for (char x = 7; x >= 0; x--) {
+        lcBottom.setColumn(2, x, GamesAddress2[7-x]);
         delay(animationDelay);
     }
     byte GamesAddress3[] = {
-        B01110101,
-        B01010101,
-        B01010101,
-        B01011101
+        B10101110,
+        B10101010,
+        B10101010,
+        B10111010
     }; 
-    for (char x = 1; x < 5; x++) {
-        lcBottom.setColumn(3, x, GamesAddress3[x-1]);
+    for (char x = 6; x >= 3; x--) {
+        lcBottom.setColumn(3, x, GamesAddress3[6-x]);
         delay(animationDelay);
     }
     delay (3000);
@@ -165,7 +165,7 @@ byte animationDelay = 25;
 
 void Draw_Menu_Arrows () {    
     
-    byte left[] = {
+   byte leftTop[] = {
             B10000001,
             B11000001,
             B10100001,
@@ -173,12 +173,20 @@ void Draw_Menu_Arrows () {
             B10000001,
             B10000001,
         };
+    byte leftBottom[] = {
+            B10000001,
+            B10000011,
+            B10000101,
+            B10000001,
+            B10000001,
+            B10000001,
+        };
     for (char x = 5; x >= 0; x--) {
-        lcTop.setColumn(0, x, left[5-x]);
-        lcBottom.setColumn(0, 7-x, left[5-x]);
+        lcTop.setColumn(0, x, leftTop[5-x]);
+        lcBottom.setColumn(0, x, leftBottom[5-x]);
     }
 
-    byte right[] = {
+    byte rightTop[] = {
         B10000001,
         B10000001,
         B10000001,
@@ -186,9 +194,17 @@ void Draw_Menu_Arrows () {
         B11000001,
         B10000001
     };
+    byte rightBottom[] = {
+        B10000001,
+        B10000001,
+        B10000001,
+        B10000101,
+        B10000011,
+        B10000001
+    };
     for (char x = 7; x >= 2; x--) {
-        lcTop.setColumn(3, x, right[7-x]);
-        lcBottom.setColumn(3, 7-x, right[7-x]);
+        lcTop.setColumn(3, x, rightTop[7-x]);
+        lcBottom.setColumn(3, x, rightBottom[7-x]);
     }
 }    
 
@@ -204,18 +220,18 @@ void Draw_Menu_QT() {
         B00000001
     };
     byte Q_bottom[] = {
-        B00000001,
-        B00000001,
-        B11110001,
-        B00010001,
-        B00010001,
-        B00010001,
-        B11111001,
-        B00011001
+        B10000000,
+        B10000000,
+        B10001111,
+        B10001000,
+        B10001000,
+        B10001000,
+        B10011111,
+        B10011000
     };
     for (char x = 7; x >= 0; x--) {
         lcTop.setColumn(1, x, Q_top[7-x]);
-        lcBottom.setColumn(1, 7-x, Q_bottom[7-x]);
+        lcBottom.setColumn(1, x, Q_bottom[7-x]);
     }
     
     byte T_top[] = {
@@ -229,25 +245,25 @@ void Draw_Menu_QT() {
         B00000001
     };
     byte T_bottom[] = {
-        B00000001,
-        B00000001,
-        B11110001,
-        B11110001,
-        B00000001,
-        B00000001,
-        B00000001,
-        B00000001
+        B10000000,
+        B10000000,
+        B10001111,
+        B10001111,
+        B10000000,
+        B10000000,
+        B10000000,
+        B10000000
     };
     for (char x = 7; x >= 0; x--) {
         lcTop.setColumn(2, x, T_top[7-x]);
-        lcBottom.setColumn(2, 7-x, T_bottom[7-x]);
+        lcBottom.setColumn(2, x, T_bottom[7-x]);
     }
 
     delay(200);
 }
 
 void Draw_Menu_Snake() {
-    byte S1[] = {
+    byte S1_Top[] = {
         B00000001,
         B00000001,
         B11110001,
@@ -257,9 +273,19 @@ void Draw_Menu_Snake() {
         B00110001,
         B00110001
     };
+    byte S1_Bottom[] = {
+        B10000000,
+        B10000000,
+        B10001111,
+        B10001111,
+        B10001100,
+        B10001100,
+        B10001100,
+        B10001100
+    };
     for (char x = 7; x >= 0; x--){
-        lcTop.setColumn(1, x, S1[7-x]);
-        lcBottom.setColumn(1, 7-x, S1[7-x]);
+        lcTop.setColumn(1, x, S1_Top[7-x]);
+        lcBottom.setColumn(1, x, S1_Bottom[7-x]);
     }
 
     byte S2_top[] = {
@@ -273,18 +299,18 @@ void Draw_Menu_Snake() {
         B00000001
     };
     byte S2_bottom[] = {
-        B00110001,
-        B00000001,
-        B00000001,
-        B00000001,
-        B00110001,
-        B00110001,
-        B00000001,
-        B00000001
+        B10001100,
+        B10000000,
+        B10000000,
+        B10000000,
+        B10001100,
+        B10001100,
+        B10000000,
+        B10000000
     };
     for (char x = 7; x >= 0; x--){
         lcTop.setColumn(2, x, S2_top[7-x]);
-        lcBottom.setColumn(2, 7-x, S2_bottom[7-x]);
+        lcBottom.setColumn(2, x, S2_bottom[7-x]);
     }
 
     delay(200);
@@ -386,26 +412,26 @@ void Draw_QuadrumTug_Score (int bottom, int top) {
         lcTop.setColumn(1, 4, B00100000);
         lcTop.setColumn(1, 3, B11100000);
 
-        lcBottom.setColumn(0, 5, B11100000);
-        lcBottom.setColumn(0, 6, B00100000);
-        lcBottom.setColumn(0, 7, B00100000);
-        lcBottom.setColumn(1, 0, B00100000);
-        lcBottom.setColumn(1, 1, B00100000);
-        lcBottom.setColumn(1, 2, B00100000);
-        lcBottom.setColumn(1, 3, B00100000);
-        lcBottom.setColumn(1, 4, B11100000);
+        lcBottom.setColumn(0, 2, B00000111);
+        lcBottom.setColumn(0, 1, B00000100);
+        lcBottom.setColumn(0, 0, B00000100);
+        lcBottom.setColumn(1, 7, B00000100);
+        lcBottom.setColumn(1, 6, B00000100);
+        lcBottom.setColumn(1, 5, B00000100);
+        lcBottom.setColumn(1, 4, B00000100);
+        lcBottom.setColumn(1, 3, B00000111);
     } else if (bottom == 1) {
         lcTop.setLed(1, 0, 4, true);
         lcTop.setLed(1, 1, 5, true);
 
-        lcBottom.setLed(1, 0, 4, true);
-        lcBottom.setLed(1, 0, 3, true);
-        lcBottom.setLed(1, 0, 2, true);
-        lcBottom.setLed(1, 0, 1, true);
-        lcBottom.setLed(1, 0, 0, true);
-        lcBottom.setLed(0, 0, 7, true);
-        lcBottom.setLed(0, 0, 6, true);
-        lcBottom.setLed(0, 0, 5, true);
+        lcBottom.setLed(1, 7, 3, true);
+        lcBottom.setLed(1, 7, 4, true);
+        lcBottom.setLed(1, 7, 5, true);
+        lcBottom.setLed(1, 7, 6, true);
+        lcBottom.setLed(1, 7, 7, true);
+        lcBottom.setLed(0, 7, 0, true);
+        lcBottom.setLed(0, 7, 1, true);
+        lcBottom.setLed(0, 7, 2, true);
     } else if (bottom == 2) {
         lcBottom.setColumn(1, 4, B00111100);
         lcBottom.setColumn(1, 3, B01000010);
@@ -454,14 +480,14 @@ void Draw_QuadrumTug_Score (int bottom, int top) {
         lcTop.setColumn(3, 6, B00100000);
         lcTop.setColumn(3, 5, B11100000);
 
-        lcBottom.setColumn(2, 3, B11100000);
-        lcBottom.setColumn(2, 4, B00100000);
-        lcBottom.setColumn(2, 5, B00100000);
-        lcBottom.setColumn(2, 6, B00100000);
-        lcBottom.setColumn(2, 7, B00100000);
-        lcBottom.setColumn(3, 0, B00100000);
-        lcBottom.setColumn(3, 1, B00100000);
-        lcBottom.setColumn(3, 2, B11100000);
+        lcBottom.setColumn(2, 4, B00000111);
+        lcBottom.setColumn(2, 3, B00000100);
+        lcBottom.setColumn(2, 2, B00000100);
+        lcBottom.setColumn(2, 1, B00000100);
+        lcBottom.setColumn(2, 0, B00000100);
+        lcBottom.setColumn(3, 7, B00000100);
+        lcBottom.setColumn(3, 6, B00000100);
+        lcBottom.setColumn(3, 5, B00000111);
     } else if (top == 1) {
         lcTop.setLed(2, 0, 0, true);
         lcTop.setLed(2, 0, 1, true);
@@ -472,8 +498,8 @@ void Draw_QuadrumTug_Score (int bottom, int top) {
         lcTop.setLed(3, 0, 6, true);
         lcTop.setLed(3, 0, 5, true);
 
-        lcBottom.setLed(2, 0, 4, true);
-        lcBottom.setLed(2, 1, 5, true);
+        lcBottom.setLed(2, 6, 2, true);
+        lcBottom.setLed(2, 7, 3, true);
     } else if (top == 2) {
         lcBottom.setColumn(2, 3, B00111100);
         lcBottom.setColumn(2, 4, B01000010);
@@ -514,13 +540,13 @@ void Draw_QuadrumTug_Score (int bottom, int top) {
 }
 
 void Draw_QuadrumTug_ClearBottom() {
-    SetFullColumnOff(0, 1, 6);
-    SetFullColumnOff(0, 1, 5);
-    SetFullColumnOff(0, 1, 4);
-    SetFullColumnOff(0, 1, 3);
-    SetFullColumnOff(0, 1, 2);
     SetFullColumnOff(0, 1, 1);
-    SetFullColumnOff(0, 1, 0);
+    SetFullColumnOff(0, 1, 2);
+    SetFullColumnOff(0, 1, 3);
+    SetFullColumnOff(0, 1, 4);
+    SetFullColumnOff(0, 1, 5);
+    SetFullColumnOff(0, 1, 6);
+    SetFullColumnOff(0, 1, 7);
     SetFullColumnOff(1, 1, 1);
     SetFullColumnOff(1, 1, 2);
     SetFullColumnOff(1, 1, 3);
@@ -529,11 +555,11 @@ void Draw_QuadrumTug_ClearBottom() {
     SetFullColumnOff(1, 1, 6);
     SetFullColumnOff(1, 1, 7);
 
-    SetFullColumnOff(0, 0, 7);
-    SetFullColumnOff(0, 0, 6);
-    SetFullColumnOff(0, 0, 5);
-    SetFullColumnOff(0, 0, 4);
+    SetFullColumnOff(0, 0, 0);
+    SetFullColumnOff(0, 0, 1);
+    SetFullColumnOff(0, 0, 2);
     SetFullColumnOff(0, 0, 3);
+    SetFullColumnOff(0, 0, 4);
     SetFullColumnOff(1, 0, 0);
     SetFullColumnOff(1, 0, 1);
     SetFullColumnOff(1, 0, 2);
@@ -542,13 +568,13 @@ void Draw_QuadrumTug_ClearBottom() {
 }
 
 void Draw_QuadrumTug_ClearTop() {
-    SetFullColumnOff(0, 2, 1);
-    SetFullColumnOff(0, 2, 2);
-    SetFullColumnOff(0, 2, 3);
-    SetFullColumnOff(0, 2, 4);
-    SetFullColumnOff(0, 2, 5);
     SetFullColumnOff(0, 2, 6);
-    SetFullColumnOff(0, 2, 7);
+    SetFullColumnOff(0, 2, 5);
+    SetFullColumnOff(0, 2, 4);
+    SetFullColumnOff(0, 2, 3);
+    SetFullColumnOff(0, 2, 2);
+    SetFullColumnOff(0, 2, 1);
+    SetFullColumnOff(0, 2, 0);
     SetFullColumnOff(1, 2, 6);
     SetFullColumnOff(1, 2, 5);
     SetFullColumnOff(1, 2, 4);
@@ -562,11 +588,11 @@ void Draw_QuadrumTug_ClearTop() {
     SetFullColumnOff(1, 3, 5);
     SetFullColumnOff(1, 3, 4);
     SetFullColumnOff(1, 3, 3);
-    SetFullColumnOff(0, 3, 0);
-    SetFullColumnOff(0, 3, 1);
-    SetFullColumnOff(0, 3, 2);
-    SetFullColumnOff(0, 3, 3);
+    SetFullColumnOff(0, 3, 7);
+    SetFullColumnOff(0, 3, 6);
+    SetFullColumnOff(0, 3, 5);
     SetFullColumnOff(0, 3, 4);
+    SetFullColumnOff(0, 3, 3);
 }
 
 #pragma endregion
