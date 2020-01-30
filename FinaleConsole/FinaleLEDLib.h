@@ -136,15 +136,24 @@ void StartUpAnimation () {
     delay (3000);
 }
 
-void SetFullColumnOn (char address, char column) {
-    lcBottom.setColumn(address, column, B11111111);
+void SetFullColumnOn (int screen, int address, int column) { //screen 0 = bottom, 1 = top
+    if (screen == 0) {
+        lcBottom.setColumn(address, column, B11111111);
+    } else {
+        lcTop.setColumn(address, column, B11111111);
+    }
 }
-void SetFullColumnOff (char address, char column) {
-    lcBottom.setColumn(address, column, B00000000);
+void SetFullColumnOff (int screen, int address, int column) { //screen 0 = bottom, 1 = top
+    if (screen == 0) {
+        lcBottom.setColumn(address, column, B00000000);
+    } else {
+        lcTop.setColumn(address, column, B00000000);
+    }
 }
 
 void AllLEDOff () {
     for (char i = 0; i < 4; i++ ) {
+        lcTop.clearDisplay(i);
         lcBottom.clearDisplay(i);
     }
 }
@@ -153,15 +162,17 @@ void AllLEDOff () {
 
 byte animationDelay = 25;
 
+
 void Draw_Menu_Arrows () {    
+    
     byte left[] = {
-        B10000001,
-        B11000001,
-        B10100001,
-        B10000001,
-        B10000001,
-        B10000001,
-    };
+            B10000001,
+            B11000001,
+            B10100001,
+            B10000001,
+            B10000001,
+            B10000001,
+        };
     for (char x = 5; x >= 0; x--) {
         lcTop.setColumn(0, x, left[5-x]);
         lcBottom.setColumn(0, 7-x, left[5-x]);
@@ -282,23 +293,20 @@ void Draw_Menu_Snake() {
 void Draw_ExitToMenu() {   
     for (char address = 1; address >= 0; address--) {
         for (char row = 7; row >= 0; row --) {
-            lcBottom.setColumn(address, row, B10000001);
-            lcBottom.setColumn(abs(address-3), abs(row-7), B10000001);
+            lcTop.setColumn(address, 7-row, B00000001);
+            lcTop.setColumn(3-address, row, B00000001);
+            lcBottom.setColumn(address, row, B00000001);
+            lcBottom.setColumn(3-address, 7-row, B00000001);
             delay(animationDelay); 
         }
     }
-    lcBottom.setColumn(0, 0, B11000011);
-    lcBottom.setColumn(3, 7, B11000011);
-    delay(animationDelay);
-    lcBottom.setColumn(0, 0, B11100111);
-    lcBottom.setColumn(3, 7, B11100111);
-    delay(animationDelay);
-    lcBottom.setColumn(0, 0, B11100111);
-    lcBottom.setColumn(3, 7, B11100111);
-    delay(animationDelay);
-    lcBottom.setColumn(0, 0, B11111111);
-    lcBottom.setColumn(3, 7, B11111111);
-    delay(500);
+    for (char i = 6; i >= 0; i--) {
+        lcTop.setLed(0, i, 7, true);
+        lcTop.setLed(3, i, 0, true);
+        lcBottom.setLed(0, i, 0, true);
+        lcBottom.setLed(3, i, 7, true);
+        delay(animationDelay); 
+    }
 }
 
 #pragma endregion
@@ -369,23 +377,35 @@ void Draw_QuadrumTug_WinnerTop () {
 
 void Draw_QuadrumTug_Score (int bottom, int top) {
     if (bottom == 0) {
-        lcBottom.setColumn(0, 5, B01111110);
-        lcBottom.setColumn(0, 6, B01000010);
-        lcBottom.setColumn(0, 7, B01000010);
-        lcBottom.setColumn(1, 0, B01000010);
-        lcBottom.setColumn(1, 1, B01000010);
-        lcBottom.setColumn(1, 2, B01000010);
-        lcBottom.setColumn(1, 3, B01000010);
-        lcBottom.setColumn(1, 4, B01111110);
+        lcTop.setColumn(0, 2, B11100000);
+        lcTop.setColumn(0, 1, B00100000);
+        lcTop.setColumn(0, 0, B00100000);
+        lcTop.setColumn(1, 7, B00100000);
+        lcTop.setColumn(1, 6, B00100000);
+        lcTop.setColumn(1, 5, B00100000);
+        lcTop.setColumn(1, 4, B00100000);
+        lcTop.setColumn(1, 3, B11100000);
+
+        lcBottom.setColumn(0, 5, B11100000);
+        lcBottom.setColumn(0, 6, B00100000);
+        lcBottom.setColumn(0, 7, B00100000);
+        lcBottom.setColumn(1, 0, B00100000);
+        lcBottom.setColumn(1, 1, B00100000);
+        lcBottom.setColumn(1, 2, B00100000);
+        lcBottom.setColumn(1, 3, B00100000);
+        lcBottom.setColumn(1, 4, B11100000);
     } else if (bottom == 1) {
-        lcBottom.setColumn(1, 4, B00001000);
-        lcBottom.setColumn(1, 3, B00011000);
-        lcBottom.setColumn(1, 2, B00101000);
-        lcBottom.setColumn(1, 1, B00001000);
-        lcBottom.setColumn(1, 0, B00001000);
-        lcBottom.setColumn(0, 7, B00001000);
-        lcBottom.setColumn(0, 6, B00001000);
-        lcBottom.setColumn(0, 5, B00001000);
+        lcTop.setLed(1, 0, 4, true);
+        lcTop.setLed(1, 1, 5, true);
+
+        lcBottom.setLed(1, 0, 4, true);
+        lcBottom.setLed(1, 0, 3, true);
+        lcBottom.setLed(1, 0, 2, true);
+        lcBottom.setLed(1, 0, 1, true);
+        lcBottom.setLed(1, 0, 0, true);
+        lcBottom.setLed(0, 0, 7, true);
+        lcBottom.setLed(0, 0, 6, true);
+        lcBottom.setLed(0, 0, 5, true);
     } else if (bottom == 2) {
         lcBottom.setColumn(1, 4, B00111100);
         lcBottom.setColumn(1, 3, B01000010);
@@ -425,23 +445,35 @@ void Draw_QuadrumTug_Score (int bottom, int top) {
     }
 
     if (top == 0) {
-        lcBottom.setColumn(2, 3, B01111110);
-        lcBottom.setColumn(2, 4, B01000010);
-        lcBottom.setColumn(2, 5, B01000010);
-        lcBottom.setColumn(2, 6, B01000010);
-        lcBottom.setColumn(2, 7, B01000010);
-        lcBottom.setColumn(3, 0, B01000010);
-        lcBottom.setColumn(3, 1, B01000010);
-        lcBottom.setColumn(3, 2, B01111110);
+        lcTop.setColumn(2, 4, B11100000);
+        lcTop.setColumn(2, 3, B00100000);
+        lcTop.setColumn(2, 2, B00100000);
+        lcTop.setColumn(2, 1, B00100000);
+        lcTop.setColumn(2, 0, B00100000);
+        lcTop.setColumn(3, 7, B00100000);
+        lcTop.setColumn(3, 6, B00100000);
+        lcTop.setColumn(3, 5, B11100000);
+
+        lcBottom.setColumn(2, 3, B11100000);
+        lcBottom.setColumn(2, 4, B00100000);
+        lcBottom.setColumn(2, 5, B00100000);
+        lcBottom.setColumn(2, 6, B00100000);
+        lcBottom.setColumn(2, 7, B00100000);
+        lcBottom.setColumn(3, 0, B00100000);
+        lcBottom.setColumn(3, 1, B00100000);
+        lcBottom.setColumn(3, 2, B11100000);
     } else if (top == 1) {
-        lcBottom.setColumn(2, 3, B00010000);
-        lcBottom.setColumn(2, 4, B00011000);
-        lcBottom.setColumn(2, 5, B00010100);
-        lcBottom.setColumn(2, 6, B00010000);
-        lcBottom.setColumn(2, 7, B00010000);
-        lcBottom.setColumn(3, 0, B00010000);
-        lcBottom.setColumn(3, 1, B00010000);
-        lcBottom.setColumn(3, 2, B00010000);
+        lcTop.setLed(2, 0, 0, true);
+        lcTop.setLed(2, 0, 1, true);
+        lcTop.setLed(2, 0, 2, true);
+        lcTop.setLed(2, 0, 3, true);
+        lcTop.setLed(2, 0, 4, true);
+        lcTop.setLed(3, 0, 7, true);
+        lcTop.setLed(3, 0, 6, true);
+        lcTop.setLed(3, 0, 5, true);
+
+        lcBottom.setLed(2, 0, 4, true);
+        lcBottom.setLed(2, 1, 5, true);
     } else if (top == 2) {
         lcBottom.setColumn(2, 3, B00111100);
         lcBottom.setColumn(2, 4, B01000010);
@@ -482,33 +514,59 @@ void Draw_QuadrumTug_Score (int bottom, int top) {
 }
 
 void Draw_QuadrumTug_ClearBottom() {
-    SetFullColumnOff(1, 6);
-    SetFullColumnOff(1, 5);
-    SetFullColumnOff(1, 4);
-    SetFullColumnOff(1, 3);
-    SetFullColumnOff(1, 2);
-    SetFullColumnOff(1, 1);
-    SetFullColumnOff(1, 0);
-    SetFullColumnOff(0, 7);
-    SetFullColumnOff(0, 6);
-    SetFullColumnOff(0, 5);
-    SetFullColumnOff(0, 4);
-    SetFullColumnOff(0, 3);
+    SetFullColumnOff(0, 1, 6);
+    SetFullColumnOff(0, 1, 5);
+    SetFullColumnOff(0, 1, 4);
+    SetFullColumnOff(0, 1, 3);
+    SetFullColumnOff(0, 1, 2);
+    SetFullColumnOff(0, 1, 1);
+    SetFullColumnOff(0, 1, 0);
+    SetFullColumnOff(1, 1, 1);
+    SetFullColumnOff(1, 1, 2);
+    SetFullColumnOff(1, 1, 3);
+    SetFullColumnOff(1, 1, 4);
+    SetFullColumnOff(1, 1, 5);
+    SetFullColumnOff(1, 1, 6);
+    SetFullColumnOff(1, 1, 7);
+
+    SetFullColumnOff(0, 0, 7);
+    SetFullColumnOff(0, 0, 6);
+    SetFullColumnOff(0, 0, 5);
+    SetFullColumnOff(0, 0, 4);
+    SetFullColumnOff(0, 0, 3);
+    SetFullColumnOff(1, 0, 0);
+    SetFullColumnOff(1, 0, 1);
+    SetFullColumnOff(1, 0, 2);
+    SetFullColumnOff(1, 0, 3);
+    SetFullColumnOff(1, 0, 4);
 }
 
 void Draw_QuadrumTug_ClearTop() {
-    SetFullColumnOff(2, 1);
-    SetFullColumnOff(2, 2);
-    SetFullColumnOff(2, 3);
-    SetFullColumnOff(2, 4);
-    SetFullColumnOff(2, 5);
-    SetFullColumnOff(2, 6);
-    SetFullColumnOff(2, 7);
-    SetFullColumnOff(3, 0);
-    SetFullColumnOff(3, 1);
-    SetFullColumnOff(3, 2);
-    SetFullColumnOff(3, 3);
-    SetFullColumnOff(3, 4);
+    SetFullColumnOff(0, 2, 1);
+    SetFullColumnOff(0, 2, 2);
+    SetFullColumnOff(0, 2, 3);
+    SetFullColumnOff(0, 2, 4);
+    SetFullColumnOff(0, 2, 5);
+    SetFullColumnOff(0, 2, 6);
+    SetFullColumnOff(0, 2, 7);
+    SetFullColumnOff(1, 2, 6);
+    SetFullColumnOff(1, 2, 5);
+    SetFullColumnOff(1, 2, 4);
+    SetFullColumnOff(1, 2, 3);
+    SetFullColumnOff(1, 2, 2);
+    SetFullColumnOff(1, 2, 1);
+    SetFullColumnOff(1, 2, 0);
+
+    SetFullColumnOff(1, 3, 7);
+    SetFullColumnOff(1, 3, 6);
+    SetFullColumnOff(1, 3, 5);
+    SetFullColumnOff(1, 3, 4);
+    SetFullColumnOff(1, 3, 3);
+    SetFullColumnOff(0, 3, 0);
+    SetFullColumnOff(0, 3, 1);
+    SetFullColumnOff(0, 3, 2);
+    SetFullColumnOff(0, 3, 3);
+    SetFullColumnOff(0, 3, 4);
 }
 
 #pragma endregion

@@ -8,7 +8,8 @@
                 "C:\\Program Files (x86)\\Arduino\\libraries\\TimedAction",
                 "C:\\Users\\StudyAbroad\\AppData\\Local\\Arduino15\\packages\\arduino\\tools\\**",
                 "C:\\Users\\StudyAbroad\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.2\\**",
-                "C:\\Users\\StudyAbroad\\Desktop\\FinaleConsole\\**"
+                "C:\\Users\\StudyAbroad\\Desktop\\FinaleConsole\\**",
+                "C:\\Users\\StudyAbroad\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\pgmspace.h"
             ],
             "forcedInclude": [
                 "C:\\Users\\StudyAbroad\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.8.2\\cores\\arduino\\Arduino.h"

@@ -15,8 +15,10 @@ char menuNumber; //QuadrumTug = 0, Dummy = 1
 void setup () {
     Serial.begin(9600);
 
-    pinMode(buttonBottomLeft, INPUT);
-    pinMode(buttonBottomRight, INPUT);
+    pinMode(buttonBottomLeft, INPUT_PULLUP);
+    pinMode(buttonBottomRight, INPUT_PULLUP);
+    pinMode(buttonTopLeft, INPUT_PULLUP);
+    pinMode(buttonTopRight, INPUT_PULLUP);
 
     //LED Matrix setup
     for (int address = 0; address < 4; address ++) {
@@ -53,23 +55,23 @@ void Menu_Display() {
 
 void Menu() {
     if (menuNumber == 0) {
-        if (digitalRead(buttonTopLeft) == HIGH) {
+        if (digitalRead(buttonTopLeft) == LOW) {
             menuNumber ++; 
             isMenuUpdated = false;
-        } else if (digitalRead(buttonTopRight) == HIGH) {
+        } else if (digitalRead(buttonTopRight) == LOW) {
             menuNumber ++;
             isMenuUpdated = false;
-        } else if (digitalRead(buttonBottomLeft) == HIGH || digitalRead(buttonBottomRight) == HIGH) { //QuadrumTug
+        } else if (digitalRead(buttonBottomLeft) == LOW || digitalRead(buttonBottomRight) == LOW) { //QuadrumTug
             gameNumber = 1;
         }
     } else if (menuNumber == 1) {
-        if (digitalRead(buttonTopLeft) == HIGH) {
+        if (digitalRead(buttonTopLeft) == LOW) {
             menuNumber --; 
             isMenuUpdated = false;
-        } else if (digitalRead(buttonTopRight) == HIGH) {
+        } else if (digitalRead(buttonTopRight) == LOW) {
             menuNumber --;
             isMenuUpdated = false;
-        } else if (digitalRead(buttonBottomLeft) == HIGH || digitalRead(buttonBottomRight) == HIGH) { 
+        } else if (digitalRead(buttonBottomLeft) == LOW || digitalRead(buttonBottomRight) == LOW) { //Snake
             gameNumber = 2;
         }
     }
@@ -151,16 +153,16 @@ void QuadrumTug_ReduceScale() {
     }
 }
 void QuadrumTug_CheckButtonPress() {
-    if (digitalRead(buttonBottomLeft) == HIGH) {
+    if (digitalRead(buttonBottomLeft) == LOW) {
         QuadrumTug_PVPButtons(BottomLeft);
         reduceScl.reset();
-    } else if (digitalRead(buttonBottomRight) == HIGH) {
+    } else if (digitalRead(buttonBottomRight) == LOW) {
         QuadrumTug_PVPButtons(BottomRight);
         reduceScl.reset();
-    } else if (digitalRead(buttonTopLeft) == HIGH && PVEMode == false) {
+    } else if (digitalRead(buttonTopLeft) == LOW && PVEMode == false) {
         QuadrumTug_PVPButtons(TopLeft);
         reduceScl.reset();
-    } else if (digitalRead(buttonTopRight) == HIGH && PVEMode == false) {
+    } else if (digitalRead(buttonTopRight) == LOW && PVEMode == false) {
         QuadrumTug_PVPButtons(TopRight);
         reduceScl.reset();
     } else {
@@ -171,12 +173,16 @@ void QuadrumTug_CheckButtonPress() {
 void QuadrumTug_AssignPVPBottom () {
     int x = random(2);  
     if (x == 0) { //Left
-        lcBottom.setColumn(0, 0, B11110000);
-        lcBottom.setColumn(0, 1, B11110000);
+        lcBottom.setColumn(0, 0, B00000000);
+        lcBottom.setColumn(0, 1, B00000000);
+        lcTop.setColumn(0, 6, B11111111);
+        lcTop.setColumn(0, 7, B11111111);
         sideBottom = 0;
     } else { //Right
-        lcBottom.setColumn(0, 0, B00001111);
-        lcBottom.setColumn(0, 1, B00001111);
+        lcBottom.setColumn(0, 0, B11111111);
+        lcBottom.setColumn(0, 1, B11111111);
+        lcTop.setColumn(0, 6, B00000000);
+        lcTop.setColumn(0, 7, B00000000);
         sideBottom = 1;
     }
 }
@@ -185,18 +191,25 @@ void QuadrumTug_AssignPVPTop () {
     if (PVEMode == false) {
         int x = random(2);  
         if (x == 0) { //Left
-            lcBottom.setColumn(3, 6, B11110000);
-            lcBottom.setColumn(3, 7, B11110000);
+            lcBottom.setColumn(3, 6, B11111111);
+            lcBottom.setColumn(3, 7, B11111111);
+            lcTop.setColumn(3, 0, B00000000);
+            lcTop.setColumn(3, 1, B00000000);
             sideTop = 0;
         } else { //Right
-            lcBottom.setColumn(3, 6, B00001111);
-            lcBottom.setColumn(3, 7, B00001111);
+            lcBottom.setColumn(3, 6, B00000000);
+            lcBottom.setColumn(3, 7, B00000000);
+            lcTop.setColumn(3, 0, B11111111);
+            lcTop.setColumn(3, 1, B11111111);
             sideTop = 1;
         }
     } else {
         lcBottom.setColumn(3, 5, B11111111);
         lcBottom.setColumn(3, 6, B00000000);
         lcBottom.setColumn(3, 7, B00000000);
+        lcTop.setColumn(3, 2, B11111111);
+        lcTop.setColumn(3, 1, B00000000);
+        lcTop.setColumn(3, 0, B00000000);
     }
     
 }
@@ -221,56 +234,65 @@ void QuadrumTug_UpdateLED () {
     for (int i = 0; i < 12; i++)
     {
         if (winningScale <= 7 && winningScale > 0) {
-            SetFullColumnOff(2, 1);
-            SetFullColumnOff(2, 2);
+            SetFullColumnOff(0, 2, 1);  SetFullColumnOff(1, 2, 6);
+            SetFullColumnOff(0, 2, 2);  SetFullColumnOff(1, 2, 5);
             if (count > 0) {
                 address = 1;
+                lcTop.setColumn(address, i+1, B11111110);
                 lcBottom.setColumn(address, 6-i, B01111110);
                 count --;
             } else {
-                SetFullColumnOff(address, 6-i);
-                SetFullColumnOff(0, 14-i);
+                SetFullColumnOff(0, address, 6-i);  SetFullColumnOff(1, address, i+1);
+                SetFullColumnOff(0, 0, 14-i);   SetFullColumnOff(1, 0, i-7);
                 if (isScoreDisplayed == true) { Draw_QuadrumTug_ClearTop(); isScoreDisplayed = false; }
             }
         } else if (winningScale >7) {
+            lcTop.setColumn(1, 7, B11111110);
+            lcTop.setColumn(1, 6, B11111110);
             lcBottom.setColumn(1, 0, B01111110);
             lcBottom.setColumn(1, 1, B01111110);
             if (count > 0) {
                 address = 0;
+                lcTop.setColumn(address, i-7, B11111110);
                 lcBottom.setColumn(address, 14-i, B01111110);
                 count --;
             } else {
-                SetFullColumnOff(address, 14-i);
+                SetFullColumnOff(1, address, i-7);
+                SetFullColumnOff(0, address, 14-i);
             }
         } else if (winningScale == 0) {
-            SetFullColumnOff(1, 4);
-            SetFullColumnOff(1, 5);
-            SetFullColumnOff(1, 6);
+            SetFullColumnOff(0, 1, 4);  SetFullColumnOff(1, 1, 3);
+            SetFullColumnOff(0, 1, 5);  SetFullColumnOff(1, 1, 2);
+            SetFullColumnOff(0, 1, 6);  SetFullColumnOff(1, 1, 1);
 
-            SetFullColumnOff(2, 1);
-            SetFullColumnOff(2, 2);
-            SetFullColumnOff(2, 3);
+            SetFullColumnOff(0, 2, 1);  SetFullColumnOff(1, 2, 6);
+            SetFullColumnOff(0, 2, 2);  SetFullColumnOff(1, 2, 5);
+            SetFullColumnOff(0, 2, 3);  SetFullColumnOff(1, 2, 4);
         } else if (winningScale >= -7 && winningScale < 0) {
-            SetFullColumnOff(1, 6);
-            SetFullColumnOff(1, 5);
+            SetFullColumnOff(0, 1, 6);  SetFullColumnOff(1, 1, 1);
+            SetFullColumnOff(0, 1, 5);  SetFullColumnOff(1, 1, 2);
             if  (count < 0) {
                 address = 2;
+                lcTop.setColumn(address, 6-i, B11111110);
                 lcBottom.setColumn(address, i+1, B01111110);
                 count ++;
             } else {
-                SetFullColumnOff(address, i+1);
-                SetFullColumnOff(3, i-7);
+                SetFullColumnOff(0, address, i+1);  SetFullColumnOff(1, address, 6-i);
+                SetFullColumnOff(0, 3, i-7);        SetFullColumnOff(1, 3, 14-i);
                 if (isScoreDisplayed == true) { Draw_QuadrumTug_ClearBottom(); isScoreDisplayed = false; }
             }
         } else if (winningScale < -7) {
+            lcTop.setColumn(2, 0, B11111110);
+            lcTop.setColumn(2, 1, B11111110);
             lcBottom.setColumn(2, 7, B01111110);
             lcBottom.setColumn(2, 6, B01111110);
             if (count < 0) {
                 address = 3;
+                lcTop.setColumn(address, 14-i, B11111110);
                 lcBottom.setColumn(address, i-7, B01111110);
                 count ++;
             } else {
-                SetFullColumnOff(address, i-7);
+                SetFullColumnOff(0, address, i-7);  SetFullColumnOff(1, address, 14-i);
             }
         }
     }
@@ -298,10 +320,10 @@ void QuadrumTug_Launch () {
         winningScale = 0;
         winningScale = constrain(winningScale, -12, 12);
 
-        SetFullColumnOn(1, 7);
-        SetFullColumnOn(2, 0);
-        SetFullColumnOn(0, 2); //Bottom playarea edge
-        SetFullColumnOn(3, 5); //Top playarea edge
+        SetFullColumnOn(0, 1, 7); SetFullColumnOn(1, 1, 0);
+        SetFullColumnOn(0, 2, 0); SetFullColumnOn(1, 2, 7);
+        SetFullColumnOn(0, 0, 2); SetFullColumnOn(1, 0, 5); //Bottom playarea edge
+        SetFullColumnOn(0, 3, 5); SetFullColumnOn(1, 3, 2); //Top playarea edge
         //Start PVP
         QuadrumTug_AssignPVPBottom();
         QuadrumTug_AssignPVPTop();
@@ -314,6 +336,9 @@ void QuadrumTug_Launch () {
             topScore = 0;
             QuadrumTug_Reset();
         } else {
+            delay (2000);
+            Draw_QuadrumTug_ClearTop();
+            Draw_QuadrumTug_ClearBottom();
             quadrumTug_Launched = true;
         }
     } else {
@@ -399,6 +424,7 @@ void Snake_Launch() {
 
     if (isPaused == true) {
         for (char i = 0; i < 4; i++) {
+            lcTop.clearDisplay(i);
             lcBottom.clearDisplay(i);
         }
 
@@ -414,7 +440,7 @@ void Snake_Launch() {
     Snake_CheckIfHitSelf();
     Snake_CheckSpeed ();
 
-    if (digitalRead(buttonTopLeft) == LOW && digitalRead(buttonTopRight) == LOW) {
+    if (digitalRead(buttonTopLeft) == HIGH && digitalRead(buttonTopRight) == HIGH) {
         changedDir = false;
     }
     unsigned long currentMillis = millis();
@@ -429,7 +455,7 @@ void Snake_Launch() {
 }
 
 void Snake_CheckDirection () {
-    if (digitalRead(buttonTopLeft) == HIGH) {
+    if (digitalRead(buttonTopLeft) == LOW) {
         if (dir == up) {
             dir = left;
         } else if (dir == down) {
@@ -440,7 +466,8 @@ void Snake_CheckDirection () {
             dir = up;
         }
         changedDir = true;
-    } else if (digitalRead(buttonTopRight) == HIGH) {
+    }
+    if (digitalRead(buttonTopRight) == LOW) {
         if (dir == up) {
             dir = right;
         } else if (dir == down) {
@@ -583,7 +610,7 @@ void Background_ExitToMenu () {
 bool enalbed = false;
 
 void Background_CheckHomeButton () {
-    if (digitalRead(buttonBottomLeft) == HIGH && digitalRead(buttonBottomRight) == HIGH && gameNumber != 0) {
+    if (digitalRead(buttonBottomLeft) == LOW && digitalRead(buttonBottomRight) == LOW && gameNumber != 0) {
         if(enalbed == false) {
             backgroundTimer.enable();
             enalbed = true;
