@@ -328,7 +328,6 @@ void QuadrumTug_Launch () {
         QuadrumTug_AssignPVPBottom();
         QuadrumTug_AssignPVPTop();
 
-        delay (1000); 
 
         if (bottomScore == 5 || topScore == 5) {
             delay (2000);
