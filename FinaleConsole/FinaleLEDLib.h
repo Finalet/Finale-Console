@@ -321,17 +321,17 @@ void Draw_ExitToMenu() {
         for (char row = 7; row >= 0; row --) {
             lcTop.setColumn(address, 7-row, B00000001);
             lcTop.setColumn(3-address, row, B00000001);
-            lcBottom.setColumn(address, row, B00000001);
-            lcBottom.setColumn(3-address, 7-row, B00000001);
+            lcBottom.setColumn(address, 7-row, B10000000);
+            lcBottom.setColumn(3-address, row, B10000000);
             delay(animationDelay); 
         }
     }
     for (char i = 6; i >= 0; i--) {
         lcTop.setLed(0, i, 7, true);
         lcTop.setLed(3, i, 0, true);
-        lcBottom.setLed(0, i, 0, true);
-        lcBottom.setLed(3, i, 7, true);
-        delay(animationDelay); 
+        lcBottom.setLed(0, 7-i, 7, true);
+        lcBottom.setLed(3, 7-i, 0, true);
+        delay(animationDelay*2); 
     }
 }
 
@@ -392,21 +392,21 @@ void Draw_QuadrumTug_WinnerTop () {
 void Draw_QuadrumTug_Score (int bottom, int top) {
     if (bottom == 0) {
         lcTop.setColumn(0, 2, B11100000);
-        lcTop.setColumn(0, 1, B00100000);
-        lcTop.setColumn(0, 0, B00100000);
-        lcTop.setColumn(1, 7, B00100000);
-        lcTop.setColumn(1, 6, B00100000);
-        lcTop.setColumn(1, 5, B00100000);
-        lcTop.setColumn(1, 4, B00100000);
+        lcTop.setLed(0, 2, 1, true);
+        lcTop.setLed(0, 2, 0, true);
+        lcTop.setLed(1, 2, 7, true);
+        lcTop.setLed(1, 2, 6, true);
+        lcTop.setLed(1, 2, 5, true);
+        lcTop.setLed(1, 2, 4, true);
         lcTop.setColumn(1, 3, B11100000);
 
         lcBottom.setColumn(0, 2, B00000111);
-        lcBottom.setColumn(0, 1, B00000100);
-        lcBottom.setColumn(0, 0, B00000100);
-        lcBottom.setColumn(1, 7, B00000100);
-        lcBottom.setColumn(1, 6, B00000100);
-        lcBottom.setColumn(1, 5, B00000100);
-        lcBottom.setColumn(1, 4, B00000100);
+        lcBottom.setLed(0, 5, 1, true);
+        lcBottom.setLed(0, 5, 0, true);
+        lcBottom.setLed(1, 5, 7, true);
+        lcBottom.setLed(1, 5, 6, true);
+        lcBottom.setLed(1, 5, 5, true);
+        lcBottom.setLed(1, 5, 4, true);
         lcBottom.setColumn(1, 3, B00000111);
     } else if (bottom == 1) {
         lcTop.setLed(1, 0, 4, true);
@@ -478,21 +478,21 @@ void Draw_QuadrumTug_Score (int bottom, int top) {
 
     if (top == 0) {
         lcTop.setColumn(2, 4, B11100000);
-        lcTop.setColumn(2, 3, B00100000);
-        lcTop.setColumn(2, 2, B00100000);
-        lcTop.setColumn(2, 1, B00100000);
-        lcTop.setColumn(2, 0, B00100000);
-        lcTop.setColumn(3, 7, B00100000);
-        lcTop.setColumn(3, 6, B00100000);
+        lcTop.setLed(2, 2, 3, true);
+        lcTop.setLed(2, 2, 2, true);
+        lcTop.setLed(2, 2, 1, true);
+        lcTop.setLed(2, 2, 0, true);
+        lcTop.setLed(3, 2, 7, true);
+        lcTop.setLed(3, 2, 6, true);
         lcTop.setColumn(3, 5, B11100000);
 
         lcBottom.setColumn(2, 4, B00000111);
-        lcBottom.setColumn(2, 3, B00000100);
-        lcBottom.setColumn(2, 2, B00000100);
-        lcBottom.setColumn(2, 1, B00000100);
-        lcBottom.setColumn(2, 0, B00000100);
-        lcBottom.setColumn(3, 7, B00000100);
-        lcBottom.setColumn(3, 6, B00000100);
+        lcBottom.setLed(2, 5, 3, true);
+        lcBottom.setLed(2, 5, 2, true);
+        lcBottom.setLed(2, 5, 1, true);
+        lcBottom.setLed(2, 5, 0, true);
+        lcBottom.setLed(3, 5, 7, true);
+        lcBottom.setLed(3, 5, 6, true);
         lcBottom.setColumn(3, 5, B00000111);
     } else if (top == 1) {
         lcTop.setLed(2, 0, 0, true);
@@ -507,41 +507,59 @@ void Draw_QuadrumTug_Score (int bottom, int top) {
         lcBottom.setLed(2, 6, 2, true);
         lcBottom.setLed(2, 7, 3, true);
     } else if (top == 2) {
-        lcBottom.setColumn(2, 3, B00111100);
-        lcBottom.setColumn(2, 4, B01000010);
-        lcBottom.setColumn(2, 5, B01000000);
-        lcBottom.setColumn(2, 6, B00100000);
-        lcBottom.setColumn(2, 7, B00010000);
-        lcBottom.setColumn(3, 0, B00001000);
-        lcBottom.setColumn(3, 1, B00000100);
-        lcBottom.setColumn(3, 2, B01111110);
+        lcTop.setColumn(2, 4, B11000000);
+        lcTop.setLed(2, 2, 3, true);
+        lcTop.setLed(2, 2, 2, true);
+        lcTop.setLed(2, 1, 1, true);
+        lcTop.setLed(2, 0, 0, true);
+        lcTop.setColumn(3, 5, B11100000);
+
+        lcBottom.setColumn(2, 4, B00000011);
+        lcBottom.setLed(2, 5, 3, true);
+        lcBottom.setLed(3, 7, 7, true);
+        lcBottom.setLed(3, 6, 6, true);
+        lcBottom.setColumn(3, 5, B00000111);
     } else if (top == 3) {
-        lcBottom.setColumn(2, 3, B00111110);
-        lcBottom.setColumn(2, 4, B01000000);
-        lcBottom.setColumn(2, 5, B01000000);
-        lcBottom.setColumn(2, 6, B00111110);
-        lcBottom.setColumn(2, 7, B01000000);
-        lcBottom.setColumn(3, 0, B01000000);
-        lcBottom.setColumn(3, 1, B01000000);
-        lcBottom.setColumn(3, 2, B00111110);
+        lcTop.setColumn(2, 4, B11000000);
+        lcTop.setLed(2, 2, 3, true);
+        lcTop.setLed(2, 2, 2, true);
+        lcTop.setColumn(2, 1, B11000000);
+        lcTop.setLed(2, 2, 0, true);
+        lcTop.setLed(3, 2, 7, true);
+        lcTop.setLed(3, 2, 6, true);
+        lcTop.setColumn(3, 5, B11000000);
+
+        lcBottom.setColumn(2, 4, B00000111);
+        lcBottom.setColumn(2, 1, B00000111);
+        lcBottom.setColumn(3, 5, B00000111);
     } else if (top == 4) {
-        lcBottom.setColumn(2, 3, B01000010);
-        lcBottom.setColumn(2, 4, B01000010);
-        lcBottom.setColumn(2, 5, B01000010);
-        lcBottom.setColumn(2, 6, B01000010);
-        lcBottom.setColumn(2, 7, B01111100);
-        lcBottom.setColumn(3, 0, B01000000);
-        lcBottom.setColumn(3, 1, B01000000);
-        lcBottom.setColumn(3, 2, B01000000);
+        lcTop.setLed(2, 2, 4, true);
+        lcTop.setLed(2, 2, 3, true);
+        lcTop.setLed(2, 2, 2, true);
+        lcTop.setLed(2, 2, 1, true);
+        lcTop.setColumn(2, 0, B11100000);
+        lcTop.setLed(3, 2, 7, true);
+        lcTop.setLed(3, 2, 6, true);
+        lcTop.setLed(3, 2, 5, true);
+
+        lcBottom.setLed(2, 5, 4, true);
+        lcBottom.setLed(2, 5, 3, true);
+        lcBottom.setLed(2, 5, 2, true);
+        lcBottom.setLed(2, 5, 1, true);
+        lcBottom.setColumn(2, 0, B00000011);
     } else if (top == 5) {
-        lcBottom.setColumn(2, 3, B01111110);
-        lcBottom.setColumn(2, 4, B00000010);
-        lcBottom.setColumn(2, 5, B00000010);
-        lcBottom.setColumn(2, 6, B00111100);
-        lcBottom.setColumn(2, 7, B01000000);
-        lcBottom.setColumn(3, 0, B01000000);
-        lcBottom.setColumn(3, 1, B01000000);
-        lcBottom.setColumn(3, 2, B00111110);
+        lcTop.setColumn(2, 4, B11100000);
+        lcTop.setColumn(2, 1, B11000000);
+        lcTop.setLed(2, 2, 0, true);
+        lcTop.setLed(3, 2, 7, true);
+        lcTop.setLed(3, 2, 6, true);
+        lcTop.setColumn(3, 5, B11000000);
+
+        lcBottom.setColumn(2, 4, B00000111);
+        lcBottom.setLed(2, 5, 3, true);
+        lcBottom.setLed(2, 5, 2, true);
+        lcBottom.setColumn(2, 1, B00000011);
+        lcBottom.setColumn(3, 5, B00000111);
     }
 }
 

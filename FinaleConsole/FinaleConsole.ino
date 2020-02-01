@@ -92,6 +92,10 @@ char AIDifficulty = 1; // 1-8
 
 char topScore = 0;
 char bottomScore = 0;
+bool released = false;
+bool released1 = false;
+bool released2 = false;
+bool released3 = false;
 
 TimedAction reduceScl = TimedAction(1000, QuadrumTug_ReduceScale);
 TimedAction AI = TimedAction (9000, QuadrumTug_PVEAI);
@@ -153,18 +157,35 @@ void QuadrumTug_ReduceScale() {
     }
 }
 void QuadrumTug_CheckButtonPress() {
-    if (digitalRead(buttonBottomLeft) == LOW) {
+    if (digitalRead(buttonBottomLeft) == HIGH) {
+        released = false;
+    }
+    if (digitalRead(buttonBottomRight) == HIGH) {
+        released1 = false;
+    }
+    if (digitalRead(buttonTopLeft) == HIGH) {
+        released2 = false;
+    }
+    if (digitalRead(buttonTopRight) == HIGH) {
+        released3 = false;
+    } 
+
+    if (digitalRead(buttonBottomLeft) == LOW && released == false) {
         QuadrumTug_PVPButtons(BottomLeft);
         reduceScl.reset();
-    } else if (digitalRead(buttonBottomRight) == LOW) {
+        released = true;
+    } else if (digitalRead(buttonBottomRight) == LOW && released1 == false) {
         QuadrumTug_PVPButtons(BottomRight);
         reduceScl.reset();
-    } else if (digitalRead(buttonTopLeft) == LOW && PVEMode == false) {
+        released1 = true;
+    } else if (digitalRead(buttonTopLeft) == LOW && PVEMode == false && released2 == false) {
         QuadrumTug_PVPButtons(TopLeft);
         reduceScl.reset();
-    } else if (digitalRead(buttonTopRight) == LOW && PVEMode == false) {
+        released2 = true;
+    } else if (digitalRead(buttonTopRight) == LOW && PVEMode == false && released3 == false) {
         QuadrumTug_PVPButtons(TopRight);
         reduceScl.reset();
+        released3 = true;
     } else {
         reduceScl.check();
     }
@@ -383,25 +404,32 @@ unsigned long prevMillis = 0;
 char getAddress(char y) {
     char address;
     if (y <= 8) {
-        address = 0;
-    } else if (y > 8 && y <= 16) {
-        address = 1;
-    } else if (y > 16 && y <= 24) {
-        address = 2;
-    } else if (y > 24 && y <= 32) {
         address = 3;
+    } else if (y > 8 && y <= 16) {
+        address = 2;
+    } else if (y > 16 && y <= 24) {
+        address = 1;
+    } else if (y > 24 && y <= 32) {
+        address = 0;
     }
     return address;
 }
-char adjustedCoordinate (char address, char x) {
-    if (address == 0) {
+char adjustedCoordinateX (char x) {
+    if (x <= 8) {
         return x;
-    } else if (address == 1) {
+    } else {
         return x-8;
-    } else if (address == 2) {
-        return x-16;
-    } else if (address == 3) {
-        return x-24;
+    }
+}
+char adjustedCoordinateY (char y) {
+    if (y <= 8) {
+        return y;
+    } else if (y > 8 && y <= 16) {
+        return y-8;
+    } else if (y > 16 && y <= 24) {
+        return y-16;
+    } else if (y > 24) {
+        return y-24;
     }
 }
 
@@ -412,9 +440,9 @@ void Snake_Launch() {
             lcBottom.clearDisplay(i);
         }
 
-        snakeX[0] = 4;
+        snakeX[0] = 8;
         snakeY[0] = 10;
-        dir = up;
+        dir = down;
         snakeSize = 1;
 
         Snake_NewFood();
@@ -481,7 +509,7 @@ void Snake_CheckDirection () {
 }
 
 void Snake_CheckSpeed () {
-    speed = 1 + analogRead(potentiomentr1) * 10 / 1023;
+    speed = 1 + analogRead(potentiomentr1) * 15 / 1023;
 }
 
 void Snake_Move() {
@@ -504,12 +532,12 @@ void Snake_Move() {
         }        
     } else if (dir == left) {
         if (snakeX[0] == 1) {
-            snakeX[0] = 8;
+            snakeX[0] = 16;
         } else {
             snakeX[0]--;
         }
     } else if (dir == right) {
-        if (snakeX[0] == 8) {
+        if (snakeX[0] == 16) {
             snakeX[0] = 1;
         } else {
             snakeX[0]++;
@@ -533,52 +561,76 @@ void Snake_CheckIfHitSelf () {
 }
 
 void Snake_DrawSnake() { 
-    char lastX = snakeX[snakeSize];
     char lastAddress = getAddress(snakeY[snakeSize]);
-    char lastY = adjustedCoordinate(lastAddress, snakeY[snakeSize]);
-    lcBottom.setLed(lastAddress, lastX-1, lastY-1, false);
+    char lastX = adjustedCoordinateX(snakeX[snakeSize]);
+    char lastY = adjustedCoordinateY(snakeY[snakeSize]);
+    if (snakeX[snakeSize] > 8) {
+        lcTop.setLed(lastAddress, lastX-1, lastY-1, false);
+    } else {
+        lcBottom.setLed(lastAddress, lastX-1, lastY-1, false); 
+    }
 
-    char x = snakeX[0];
     char address = getAddress(snakeY[0]);
-    char y = adjustedCoordinate(address, snakeY[0]);
-    lcBottom.setLed(address, x-1, y-1, true); 
+    char x = adjustedCoordinateX(snakeX[0]);
+    char y = adjustedCoordinateY(snakeY[0]);
+    if (snakeX[0] > 8) {
+        lcTop.setLed(address, x-1, y-1, true);
+    } else {
+        lcBottom.setLed(address, x-1, y-1, true); 
+    }
 }
 
 void Snake_BlinkSnake () {
     for (char i = 0; i < snakeSize; i++) {
         char address = getAddress(snakeY[i]);
-        char x = snakeX[i];
-        char y = adjustedCoordinate(address, snakeY[i]);
-        lcBottom.setLed(address, x-1, y-1, false);
+        char x = adjustedCoordinateX(snakeX[i]);
+        char y = adjustedCoordinateY(snakeY[i]);
+        if (snakeX[i] > 8) {
+            lcTop.setLed(address, x-1, y-1, false);
+        } else {
+            lcBottom.setLed(address, x-1, y-1, false);
+        }
     }
-    delay(200);
+    delay(200); 
     for (char i = 0; i < snakeSize; i++) {
         char address = getAddress(snakeY[i]);
-        char x = snakeX[i];
-        char y = adjustedCoordinate(address, snakeY[i]);
-        lcBottom.setLed(address, x-1, y-1, true);
+        char x = adjustedCoordinateX(snakeX[i]);
+        char y = adjustedCoordinateY(snakeY[i]);
+        if (snakeX[i] > 8) {
+            lcTop.setLed(address, x-1, y-1, true);
+        } else {
+            lcBottom.setLed(address, x-1, y-1, true);
+        }
     }
-    delay(200);
+    delay(200); 
 }
 
 void Snake_DrawFullSnake() {
     for (char i = 0; i < snakeSize; i++) {
         char address = getAddress(snakeY[i]);
-        char x = snakeX[i];
-        char y = adjustedCoordinate(address, snakeY[i]);
-        lcBottom.setLed(address, x-1, y-1, true);
+        char x = adjustedCoordinateX(snakeX[i]);
+        char y = adjustedCoordinateY(snakeY[i]);
+        if (snakeX[i] > 8) {
+            lcTop.setLed(address, x-1, y-1, true);
+        } else {
+            lcBottom.setLed(address, x-1, y-1, true);
+        }
     }
 }
 
 void Snake_DrawFood() {
     char address = getAddress(foodY);
-    char x = foodX;
-    char y = adjustedCoordinate(address, foodY);
-    lcBottom.setLed(address, x-1, y-1, true);
+    char x = adjustedCoordinateX(foodX);
+    char y = adjustedCoordinateY(foodY);
+    if (foodX > 8) {
+        lcTop.setLed(address, x-1, y-1, true);
+    } else {
+        lcBottom.setLed(address, x-1, y-1, true);
+    }
 }
 
 void Snake_NewFood () {
-    foodX = random(1, 9);
+    foodX = random(1, 17);
     foodY = random(1, 33);
 }
 
