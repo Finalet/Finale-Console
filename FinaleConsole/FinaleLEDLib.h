@@ -316,6 +316,60 @@ void Draw_Menu_Snake() {
     delay(200);
 }
 
+void Draw_Menu_SU() {
+    byte S_top[]= {
+        B00000001,
+        B00000001,
+        B11110001,
+        B10010001,
+        B10010001,
+        B10010001,
+        B10010001,
+        B00000001
+    };
+    byte S_bottom[] = {
+        B10000000,
+        B10000000,
+        B10001000,
+        B10001000,
+        B10001000,
+        B10001000,
+        B10001111,
+        B10000000
+    };
+    for (char x = 7; x >= 0; x--) {
+        lcTop.setColumn(1, x, S_top[7-x]);
+        lcBottom.setColumn(1, x, S_bottom[7-x]);
+    }
+    
+    byte U_top[] = {
+        B00000001,
+        B11110001,
+        B00000001,
+        B00000001,
+        B00000001,
+        B11110001,
+        B00000001,
+        B00000001
+    };
+    byte U_bottom[] = {
+        B10000000,
+        B10001111,
+        B10001000,
+        B10001000,
+        B10001000,
+        B10001111,
+        B10000000,
+        B10000000
+    };
+    for (char x = 7; x >= 0; x--) {
+        lcTop.setColumn(2, x, U_top[7-x]);
+        lcBottom.setColumn(2, x, U_bottom[7-x]);
+    }
+
+    delay(200);
+}
+
 void Draw_ExitToMenu() {   
     for (char address = 1; address >= 0; address--) {
         for (char row = 7; row >= 0; row --) {

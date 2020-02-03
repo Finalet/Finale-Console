@@ -9,8 +9,8 @@
 
 #define potentiomentr1 A0
 
-char gameNumber = 0; //Menu = 0, QuadrumTug = 1, Snake = 2
-char menuNumber; //QuadrumTug = 0, Dummy = 1
+char gameNumber = 0; //Menu = 0, QuadrumTug = 1, Snake = 2, Stack up = 3
+char menuNumber; //QuadrumTug = 0, Snake = 1, Stack up = 2
 
 void setup () {
     Serial.begin(9600);
@@ -46,8 +46,11 @@ void Menu_Display() {
         if (menuNumber == 0) {
             Draw_Menu_QT();
             isMenuUpdated = true;
-        } else {
+        } else if (menuNumber == 1) {
             Draw_Menu_Snake();
+            isMenuUpdated = true;
+        } else if (menuNumber == 2){
+            Draw_Menu_SU();
             isMenuUpdated = true;
         }
     } 
@@ -56,7 +59,7 @@ void Menu_Display() {
 void Menu() {
     if (menuNumber == 0) {
         if (digitalRead(buttonTopLeft) == LOW) {
-            menuNumber ++; 
+            menuNumber = 2; 
             isMenuUpdated = false;
         } else if (digitalRead(buttonTopRight) == LOW) {
             menuNumber ++;
@@ -69,10 +72,20 @@ void Menu() {
             menuNumber --; 
             isMenuUpdated = false;
         } else if (digitalRead(buttonTopRight) == LOW) {
-            menuNumber --;
+            menuNumber ++;
             isMenuUpdated = false;
         } else if (digitalRead(buttonBottomLeft) == LOW || digitalRead(buttonBottomRight) == LOW) { //Snake
             gameNumber = 2;
+        }
+    } else if (menuNumber == 2) {
+        if (digitalRead(buttonTopLeft) == LOW) {
+            menuNumber--; 
+            isMenuUpdated = false;
+        } else if (digitalRead(buttonTopRight) == LOW) {
+            menuNumber = 0;
+            isMenuUpdated = false;
+        } else if (digitalRead(buttonBottomLeft) == LOW || digitalRead(buttonBottomRight) == LOW) { //Snake
+            gameNumber = 3;
         }
     }
     Menu_Display();
@@ -383,13 +396,13 @@ void QuadrumTug_Launch () {
 
 #pragma endregion 
 
-#pragma region Snake    //Snake
+#pragma region Snake    //Snake game
 
 char speed = 1;
 
 char snakeSize;
-int snakeX[256];
-int snakeY[256];
+char snakeX[256];
+char snakeY[256];
 direction dir;
 bool changedDir;
 
@@ -643,6 +656,128 @@ void Snake_GameOver() {
 
 #pragma endregion
 
+#pragma region StackUp //Stack up game
+
+char stackUpSpeed = 0;
+
+char stackRow = 7;
+int prevX;
+int currentX;
+int length = 8;
+direction stackDirection = left;
+int stackAddress = 0;
+
+bool isPlaying = false;
+bool buttonPressed = false;
+bool firstTime = false;
+
+void StackUp_Launch () {
+    if (isPlaying == false) {
+        for (int i = 0; i < 4; i++) {
+            lcBottom.clearDisplay(i);
+            lcTop.clearDisplay(i);
+            firstTime = false;
+        }
+        stackRow = 7;
+        stackAddress = 0;
+        length = 8;
+        stackDirection = left;
+
+        isPlaying = true;
+    }
+    StackUp_Game();
+}
+
+void StackUp_Game (){
+     while (digitalRead(buttonTopLeft) == HIGH && digitalRead(buttonTopRight) == HIGH) {
+        Background_CheckHomeButton();
+        if (gameNumber == 0) {
+            break;
+        }
+        StackUp_CheckSpeed();
+        delay(1400/(stackUpSpeed+5*stackAddress));
+        buttonPressed = false;
+
+        if (currentX < 0) {
+            stackDirection = left;
+        } else if (currentX > 14 + length) {
+            stackDirection = right;
+        }
+
+        if (stackDirection == left) {
+            currentX++;
+            lcTop.setLed(stackAddress, currentX - length - 8, stackRow, false);
+            lcBottom.setLed(stackAddress, currentX - length, stackRow, false);
+        } else {
+            currentX--;
+            lcTop.setLed(stackAddress, currentX - 7, stackRow, false);
+            lcBottom.setLed(stackAddress, currentX + 1, stackRow, false);
+        }
+        for (int i = 0; i < length; i++) {
+            lcTop.setLed(stackAddress, currentX - i - 8, stackRow, true);
+            lcBottom.setLed(stackAddress, currentX - i, stackRow, true);
+        }
+    }
+    if (stackRow < 0) {
+        stackAddress++;
+        stackRow = 7;
+    } 
+    if (digitalRead(buttonTopLeft) == LOW || digitalRead(buttonTopRight) == LOW) {
+        if (buttonPressed == false) {
+            buttonPressed = true;
+            if(firstTime == false) {
+                firstTime = true;
+                prevX = currentX;
+            }
+            stackRow--;
+            StackUp_CheckFall();
+        }
+    }
+}
+
+void StackUp_CheckFall () {
+    if (currentX != prevX) {
+        for (int i = 0; i < 8; i++) {
+            lcTop.setLed(stackAddress, prevX-length-8-i, stackRow+1, false);
+            lcBottom.setLed(stackAddress, prevX-length-i, stackRow+1, false);
+            lcTop.setLed(stackAddress, prevX-7+i, stackRow+1, false);
+            lcBottom.setLed(stackAddress, prevX+1+i, stackRow+1, false);
+        }
+        length -= abs(currentX - prevX);
+        if (currentX > prevX) {
+            currentX -= abs(currentX - prevX);
+        }
+    }
+    prevX = currentX;
+    currentX = 0;
+    if (length <= 0) {
+        StackUp_GameOver();
+    }
+}
+
+void StackUp_GameOver () {
+    isPlaying = false;
+    while (stackRow >= 0) {
+        if (stackRow == 8) {
+            stackRow = 0;
+            stackAddress--;
+        }
+        if (stackAddress == -1) {
+            break;
+        }
+        lcTop.setColumn(stackAddress, stackRow, B00000000);
+        lcBottom.setColumn(stackAddress, stackRow, B00000000);
+        stackRow++;
+        delay(100);
+    }
+}
+
+void StackUp_CheckSpeed() {
+    stackUpSpeed = 5 + analogRead(potentiomentr1) * 20 / 1023;
+}
+
+#pragma endregion
+
 #pragma region Background 
 
 TimedAction backgroundTimer = TimedAction(3000, Background_ExitToMenu);
@@ -652,6 +787,8 @@ void Background_ExitToMenu () {
         quadrumTug_Launched = false;
     } else if (gameNumber == 2) {
         isPaused = true;
+    } else if (gameNumber == 3) {
+        isPlaying = false;
     }
     gameNumber = 0;
     isMenuUpdated = false;
@@ -683,6 +820,8 @@ void loop() {
         QuadrumTug_Launch();
     } else if (gameNumber == 2) {
         Snake_Launch();
+    } else if (gameNumber == 3) {
+        StackUp_Launch();
     }
     Background_CheckHomeButton();
 }
