@@ -21,7 +21,7 @@ void setup () {
     pinMode(buttonTopRight, INPUT_PULLUP);
 
     //LED Matrix setup
-    for (int address = 0; address < 4; address ++) {
+    for (int address = 0; address < 4; address ++) { 
         lcBottom.shutdown(address, false);
         lcBottom.setIntensity(address, 8);
         lcBottom.clearDisplay(address);
